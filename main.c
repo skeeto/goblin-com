@@ -2,13 +2,15 @@
 #include "display.h"
 
 static void
-popup(void)
+popup(int key)
 {
     font_t font = {COLOR_YELLOW, COLOR_BLACK, true};
     panel_t popup;
     panel_init(&popup, 10, 10, 20, 5);
     panel_fill(&popup, font, ' ');
-    panel_puts(&popup, 1, 1, font, "Cool beans!");
+    char buffer[128];
+    snprintf(buffer, sizeof(buffer), "Unknown: %d", key);
+    panel_puts(&popup, 1, 1, font, buffer);
     display_push(&popup);
     display_getch();
     display_pop();
@@ -39,14 +41,42 @@ main(void)
     panel_puts(&info, 5, 1, info_font, "Goblin-COM");
     display_push(&info);
 
-    int type = 0;
-    do {
-        panel_fill(&world, water_font, ".~"[type++ % 2]);
+    /* Main Loop */
+    font_t player_font = {COLOR_WHITE, COLOR_BLACK, true};
+    char px = (DISPLAY_WIDTH - info_width) / 2;
+    char py = DISPLAY_HEIGHT / 2;
+    bool running = true;
+    int fps = 5;
+    while (running) {
+        uint64_t uepoch = device_uepoch();
+        panel_fill(&world, water_font, ".~"[(uepoch / (1000000 / fps)) % 2]);
+        panel_putc(&world, px, py, player_font, '@');
         display_refresh();
-    } while (!device_kbhit(1000000 / 5));
-    while (device_kbhit(0))
-        device_getch();
-    popup();
+        if (device_kbhit(1000000 / fps)) {
+            int key = device_getch();
+            switch (key) {
+            case ARROW_U:
+                py--;
+                break;
+            case ARROW_D:
+                py++;
+                break;
+            case ARROW_L:
+                px--;
+                break;
+            case ARROW_R:
+                px++;
+                break;
+            case 'q':
+            case 3:
+                running = false;
+                break;
+            default:
+                popup(key);
+                break;
+            }
+        }
+    };
 
     display_pop(); // info
     display_pop(); // world

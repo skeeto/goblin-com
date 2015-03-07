@@ -5,7 +5,7 @@
 
 #define ARROW_U  321
 #define ARROW_D  322
-#define ARROW_L  224
+#define ARROW_L  324
 #define ARROW_R  323
 #define ARROW_UL 305
 #define ARROW_DL 308

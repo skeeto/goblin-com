@@ -108,7 +108,32 @@ device_flush(void)
 int
 device_getch(void)
 {
-    return getch();
+    int result = getch();
+    if (result != 0xE0 && result != 0x00) {
+        return result;
+    } else {
+        result = getch();
+        switch (result) {
+        case 72:
+            return ARROW_U;
+        case 80:
+            return ARROW_D;
+        case 75:
+            return ARROW_L;
+        case 77:
+            return ARROW_R;
+        case 71:
+            return ARROW_UL;
+        case 73:
+            return ARROW_UR;
+        case 79:
+            return ARROW_DL;
+        case 81:
+            return ARROW_DR;
+        default:
+            return result + 256;
+        }
+    }
 }
 
 /* http://stackoverflow.com/a/21749034 */
