@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "display.h"
+#include "map.h"
 
 static void
 popup(int key)
@@ -50,6 +51,8 @@ main(void)
     panel_puts(&info, 5, 1, info_font, "Goblin-COM");
     display_push(&info);
 
+    map_t *map = map_generate(device_uepoch());
+
     /* Main Loop */
     font_t player_font = {COLOR_WHITE, COLOR_BLACK, true};
     char px = (DISPLAY_WIDTH - info_width) / 2;
@@ -57,8 +60,7 @@ main(void)
     bool running = true;
     int fps = 5;
     while (running) {
-        uint64_t uepoch = device_uepoch();
-        panel_fill(&world, water_font, ".~"[(uepoch / (1000000 / fps)) % 2]);
+        map_draw(map, &world);
         panel_putc(&world, px, py, player_font, '@');
         display_refresh();
         if (device_kbhit(1000000 / fps)) {
@@ -86,6 +88,8 @@ main(void)
             }
         }
     };
+
+    map_free(map);
 
     display_pop(); // info
     display_pop(); // world

@@ -1,6 +1,7 @@
 CFLAGS = -std=c99 -Wall -Wextra -g3 -Os
+LDLIBS = -lm
 
-gcom : main.c display.c device_unix.c
+gcom : main.c display.c map.c device_unix.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :
