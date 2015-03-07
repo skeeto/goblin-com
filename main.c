@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "display.h"
 
 static void
@@ -21,6 +22,14 @@ popup(int key)
 int
 main(void)
 {
+    int w, h;
+    device_size(&w, &h);
+    if (w < DISPLAY_WIDTH || h < DISPLAY_HEIGHT) {
+        printf("Goblin-COM requires a terminal of at least %dx%d characters!\n"
+               "Press enter to exit ...", DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        getchar();
+        exit(EXIT_FAILURE);
+    }
     display_init();
     device_title("Goblin-COM");
 

@@ -4,6 +4,7 @@
 #include <termios.h>
 #include <sys/time.h>
 #include <sys/select.h>
+#include <sys/ioctl.h>
 #include "device.h"
 
 #define FONT_INVALID {-1, -1, -1};
@@ -104,4 +105,13 @@ void
 device_title(const char *title)
 {
     printf("\e]2;%s\a", title);
+}
+
+void
+device_size(int *width, int *height)
+{
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    *width = w.ws_col;
+    *height = w.ws_row;
 }
