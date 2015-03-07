@@ -54,7 +54,7 @@ device_putc(font_t font, char c)
         putchar(c);
     else
         printf("\e[%d;%d%sm%c", font.fore + 30, font.back + 40,
-               font.bold ? ";1" : "", c);
+               font.bold ? ";1" : ";2", c);
     device_font_last = font;
 }
 
