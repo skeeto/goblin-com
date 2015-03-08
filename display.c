@@ -161,6 +161,18 @@ panel_attr(panel_t *p, int x, int y, font_t font)
 }
 
 void
+panel_erase(panel_t *p, int x, int y)
+{
+    p->tiles[x][y].transparent = true;
+}
+
+char
+panel_getc(panel_t *p, int x, int y)
+{
+    return p->tiles[x][y].c;
+}
+
+void
 panel_fill(panel_t *p, font_t font, char c)
 {
     for (int y = 0; y < p->h; y++)
