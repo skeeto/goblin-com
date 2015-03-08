@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include <math.h>
 #include "map.h"
 
@@ -83,7 +84,7 @@ summarize(map_t *map, uint64_t *seed)
                 for (size_t sx = 0; sx < MAP_WIDTH; sx++) {
                     size_t ix = x * MAP_WIDTH + sx;
                     size_t iy = y * MAP_HEIGHT + sy;
-                    mean += map->tiles[ix][iy].height;
+                    mean += map->low[ix][iy].height;
                 }
             }
             mean /= (MAP_WIDTH * MAP_HEIGHT);
@@ -92,25 +93,26 @@ summarize(map_t *map, uint64_t *seed)
                 for (size_t sx = 0; sx < MAP_WIDTH; sx++) {
                     size_t ix = x * MAP_WIDTH + sx;
                     size_t iy = y * MAP_HEIGHT + sy;
-                    float diff = mean - map->tiles[ix][iy].height;
+                    float diff = mean - map->low[ix][iy].height;
                     std += diff * diff;
                 }
             }
             std = sqrt(std / (MAP_HEIGHT * MAP_WIDTH));
             enum map_base base;
             if (mean < -0.8)
-                base = OCEAN;
+                base = BASE_OCEAN;
             else if (mean < -0.6)
-                base = COAST;
+                base = BASE_COAST;
             else if (std > 0.05)
-                base = MOUNTAIN;
+                base = BASE_MOUNTAIN;
             else if (std > 0.04)
-                base = HILL;
+                base = BASE_HILL;
             else if (randf(seed) > 0.3)
-                base = GRASS;
+                base = BASE_GRASSLAND;
             else
-                base = FOREST;
-            map->summary[x][y].base = base;
+                base = BASE_FOREST;
+            map->high[x][y].base = base;
+            map->high[x][y].building = 0;
         }
     }
 }
@@ -138,7 +140,7 @@ map_generate(uint64_t seed)
             float sx = x / (float)(MAP_WIDTH * MAP_WIDTH) - 0.5;
             float sy = y / (float)(MAP_HEIGHT * MAP_HEIGHT) - 0.5;
             float s = sqrt(sx * sx + sy * sy) * 3 - 0.45f;
-            map->tiles[x][y].height = height - s;
+            map->low[x][y].height = height - s;
         }
     }
     free(buf_a);
@@ -153,54 +155,64 @@ map_free(map_t *map)
     free(map);
 }
 
+static font_t
+base_font(enum map_base base, int x, int y)
+{
+    font_t font = FONT_DEFAULT;
+    switch (base) {
+    case BASE_OCEAN:
+        font.fore = COLOR_WHITE;
+        font.back = COLOR_BLUE;
+        break;
+    case BASE_COAST: {
+        font.fore = COLOR_WHITE;
+        font.back = COLOR_BLUE;
+        float dx = (x / (float)MAP_WIDTH) - 0.5;
+        float dy = (y / (float)MAP_HEIGHT) - 0.5;
+        float dist = sqrt(dx * dx + dy * dy) * 100;
+        float offset = (device_uepoch() / 100000) % 31;
+        font.bold = sinf(dist + offset) < 0 ? true : false;
+    } break;
+    case BASE_GRASSLAND:
+        font.fore = COLOR_GREEN;
+        font.back = COLOR_GREEN;
+        font.bold = true;
+        break;
+    case BASE_FOREST:
+        font.fore = COLOR_GREEN;
+        font.back = COLOR_GREEN;
+        font.bold = true;
+        break;
+    case BASE_HILL:
+        font.fore = COLOR_BLACK;
+        font.back = COLOR_GREEN;
+        font.bold = true;
+        break;
+    case BASE_MOUNTAIN:
+        font.fore = COLOR_WHITE;
+        font.back = COLOR_WHITE;
+        font.bold = true;
+        break;
+    }
+    return font;
+}
 
 void
 map_draw(map_t *map, panel_t *p)
 {
     for (size_t y = 0; y < MAP_HEIGHT; y++) {
         for (size_t x = 0; x < MAP_WIDTH; x++) {
-            enum map_base base = map->summary[x][y].base;
-            font_t font = {0, 0, false};
-            char c = 'X';
-            switch (base) {
-            case OCEAN:
-                font.fore = COLOR_WHITE;
-                font.back = COLOR_BLUE;
-                c = ' ';
-                break;
-            case COAST: {
-                font.fore = COLOR_WHITE;
-                font.back = COLOR_BLUE;
-                float dx = (x / (float)MAP_WIDTH) - 0.5;
-                float dy = (y / (float)MAP_HEIGHT) - 0.5;
-                float dist = sqrt(dx * dx + dy * dy) * 100;
-                float offset = (device_uepoch() / 100000) % 31;
-                font.bold = sinf(dist + offset) < 0 ? true : false;
-                c = '~';
-            } break;
-            case GRASS:
-                font.fore = COLOR_GREEN;
-                font.back = COLOR_GREEN;
-                font.bold = true;
-                c = '.';
-                break;
-            case FOREST:
-                font.fore = COLOR_GREEN;
-                font.back = COLOR_GREEN;
-                font.bold = true;
-                c = '#';
-                break;
-            case HILL:
-                font.fore = COLOR_BLACK;
-                font.back = COLOR_GREEN;
-                font.bold = true;
-                c = '=';
-                break;
-            case MOUNTAIN:
-                font.fore = COLOR_BLACK;
-                font.back = COLOR_WHITE;
-                c = 'M';
-                break;
+            char c;
+            font_t font;
+            enum building building = map->high[x][y].building;
+            if (building != C_NONE) {
+                c = building;
+                if (map->high[x][y].building_age < 0)
+                    c = tolower(c);
+                font = (font_t){COLOR_YELLOW, COLOR_BLACK, true};
+            } else {
+                c = map->high[x][y].base;
+                font = base_font(c, x, y);
             }
             panel_putc(p, x, y, font, c);
         }

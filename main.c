@@ -3,14 +3,30 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "display.h"
 #include "map.h"
 #include "game.h"
+
+#define FPS 6
+#define PERIOD (1000000 / 6)
 
 static bool
 is_exit_key(int key)
 {
     return key == 'q' || key == 27 || key == 3;
+}
+
+static int
+game_getch(game_t *game, panel_t *world)
+{
+    for (;;) {
+        map_draw(game->map, world);
+        display_refresh();
+        uint64_t wait = device_uepoch() % PERIOD;
+        if (device_kbhit(wait))
+            return device_getch();
+    }
 }
 
 static void
@@ -31,7 +47,11 @@ popup_error(char *format, ...)
     panel_center_init(&popup, width, height);
     panel_puts(&popup, 1, 1, font, buffer);
     display_push(&popup);
-    while (!is_exit_key(display_getch()));
+    for (;;) {
+        int key = display_getch();
+        if (is_exit_key(key) || key == 13 || key == ' ')
+            break;
+    }
     display_pop();
     panel_free(&popup);
     display_refresh();
@@ -73,10 +93,10 @@ sidemenu_draw(panel_t *p, game_t *game)
 }
 
 static char
-popup_build_select(void)
+popup_build_select(game_t *game, panel_t *world)
 {
-    int width = 50;
-    int height = 11;
+    int width = 56;
+    int height = 13;
     panel_t build;
     panel_center_init(&build, width, height);
     display_push(&build);
@@ -86,21 +106,89 @@ popup_build_select(void)
     int input;
     char result = 0;
     panel_t *p = &build;
-    font_t font = FONT_DEFAULT;
-    panel_puts(p, 1, 1, font, "(w) Lumberyard (+4 wood/t)");
-    panel_puts(p, 1, 3, font, "(f) Farm       (+4 food/t)");
-    panel_puts(p, 1, 5, font, "(c) Cottage    (-1 food/t, +2 heroes)");
-    panel_puts(p, 1, 7, font, "(h) Hamlet     (-2 food/t, +2 gold/t, +10 pop)");
-    panel_puts(p, 1, 9, font, "(m) Mine       (+4 gold/t)");
+    font_t item = {COLOR_WHITE, COLOR_BLACK, true};
+    font_t desc = {COLOR_WHITE, COLOR_BLACK, false};
+    panel_puts(p, 1, 1, item, "(w) Lumberyard [-2 gold]");
+    panel_puts(p, 5, 2, desc, "Place on forest (#) [+4 wood/t]");
+    panel_puts(p, 1, 3, item, "(f) Farm       [-10 wood]");
+    panel_puts(p, 5, 4, desc, "Place on grassland (.), forest (#) [+4 food/t]");
+    panel_puts(p, 1, 5, item, "(c) Stable     [-25 wood]");
+    panel_puts(p, 5, 6, desc,
+               "Place on grassland (.) [-1 food/t, +2 hero slots]");
+    panel_puts(p, 1, 7, item, "(m) Mine       [-100 wood]");
+    panel_puts(p, 5, 8, desc, "Place on hill (=)");
+    panel_puts(p, 1, 9, item, "(h) Hamlet     [-20 wood]");
+    panel_puts(p, 5, 10, desc, "Place on forest (#), grass (.), or hill (=)");
+    panel_puts(p, 7, 11, desc, "[-2 food/t, +2 gold/t, +10 workers]");
     font_t highlight = {COLOR_RED, COLOR_BLACK, true};
     for (int i = 1; i <= 9; i +=2)
         panel_attr(p, 2, i, highlight);
-    while (result == 0 && !is_exit_key(input = display_getch()))
+    while (result == 0 && !is_exit_key(input = game_getch(game, world)))
         if (strchr("wfchm", input))
-            result = input;
+            result = toupper(input);
     display_pop();
     panel_free(&build);
     return result;
+}
+
+static bool
+arrow_adjust(int input, int *x, int *y)
+{
+    switch (input) {
+    case ARROW_U:
+        (*y)--;
+        return true;
+    case ARROW_D:
+        (*y)++;
+        return true;
+    case ARROW_L:
+        (*x)--;
+        return true;
+    case ARROW_R:
+        (*x)++;
+        return true;
+    case ARROW_UL:
+        (*x)--;
+        (*y)--;
+        return true;
+    case ARROW_UR:
+        (*x)++;
+        (*y)--;
+        return true;
+    case ARROW_DL:
+        (*x)--;
+        (*y)++;
+        return true;
+    case ARROW_DR:
+        (*x)++;
+        (*y)++;
+        return true;
+    }
+    return false;
+}
+
+static bool
+select_position(game_t *game, panel_t *world, int *x, int *y)
+{
+    font_t highlight = {COLOR_WHITE, COLOR_RED, true};
+    *x = MAP_WIDTH / 2;
+    *y = MAP_HEIGHT / 2;
+    bool selected = false;
+    panel_t overlay;
+    panel_init(&overlay, 0, 0, MAP_WIDTH, MAP_HEIGHT);
+    panel_putc(&overlay, *x, *y, highlight, panel_getc(world, *x, *y));
+    display_push(&overlay);
+    int input;
+    while (!selected && !is_exit_key(input = game_getch(game, world))) {
+        panel_erase(&overlay, *x, *y);
+        arrow_adjust(input, x, y);
+        panel_putc(&overlay, *x, *y, highlight, panel_getc(world, *x, *y));
+        if (input == 13)
+            selected = true;
+    }
+    display_pop();
+    panel_free(&overlay);
+    return selected;
 }
 
 int
@@ -131,16 +219,21 @@ main(void)
 
     /* Main Loop */
     bool running = true;
-    int fps = 5;
     while (running) {
         sidemenu_draw(&sidemenu, &game);
         map_draw(game.map, &world);
         display_refresh();
-        if (device_kbhit(1000000 / fps)) {
+        if (device_kbhit(PERIOD)) {
             int key = device_getch();
             switch (key) {
             case 'b': {
-                char build = popup_build_select();
+                char building = popup_build_select(&game, &world);
+                if (building) {
+                    int x, y;
+                    if (select_position(&game, &world, &x, &y))
+                        if (!game_build(&game, building, x, y))
+                            popup_error("Invalid building location!");
+                }
             } break;
             case 'q':
             case 3:
