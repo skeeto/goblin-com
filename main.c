@@ -24,10 +24,10 @@ is_exit_key(int key)
 }
 
 static int
-game_getch(game_t *game, panel_t *world)
+game_getch(game_t *game, panel_t *terrain)
 {
     for (;;) {
-        map_draw(game->map, world);
+        map_draw_terrain(game->map, terrain);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
         if (device_kbhit(wait))
@@ -69,7 +69,7 @@ popup_quit(bool saving)
     panel_t popup;
     char *message;
     if (saving)
-        message = "Really quit? (y/n)";
+        message = "Really save and quit? (y/n)";
     else
         message = "Really quit without saving? (y/n)";
     size_t length = strlen(message);
@@ -147,7 +147,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 }
 
 static char
-popup_build_select(game_t *game, panel_t *world)
+popup_build_select(game_t *game, panel_t *terrain)
 {
     int width = 56;
     int height = 20;
@@ -211,7 +211,7 @@ popup_build_select(game_t *game, panel_t *world)
     panel_printf(p, 5, y++, desc, "Target: (any land)");
     panel_attr(p, 2, y - 3, FONT_KEY);
 
-    while (result == 0 && !is_exit_key(input = game_getch(game, world)))
+    while (result == 0 && !is_exit_key(input = game_getch(game, terrain)))
         if (strchr("wfshmr", input))
             result = toupper(input);
     if (result == 'R')
@@ -295,6 +295,25 @@ spend(game_t *game, yield_t yield)
     return false;
 }
 
+static bool
+persist(game_t *game)
+{
+    FILE *save = fopen(PERSIST_FILE, "wb");
+    if (save) {
+        game_save(game, save);
+        return fclose(save) == 0;
+    }
+    return false;
+}
+
+static game_t *atexit_save_game;
+static void
+atexit_save(void)
+{
+    if (atexit_save_game)
+        persist(atexit_save_game);
+}
+
 int
 main(void)
 {
@@ -318,15 +337,21 @@ main(void)
     } else {
         game_init(&game, device_uepoch());
     }
-
-    panel_t world;
-    panel_init(&world, 0, 0, MAP_WIDTH, MAP_HEIGHT);
-    display_push(&world);
+    atexit_save_game = &game;
+    atexit(atexit_save);
 
     panel_t sidemenu;
     panel_init(&sidemenu, DISPLAY_WIDTH - SIDEMENU_WIDTH, 0,
                SIDEMENU_WIDTH, DISPLAY_HEIGHT);
     display_push(&sidemenu);
+
+    panel_t terrain;
+    panel_init(&terrain, 0, 0, MAP_WIDTH, MAP_HEIGHT);
+    display_push(&terrain);
+
+    panel_t buildings;
+    panel_init(&buildings, 0, 0, MAP_WIDTH, MAP_HEIGHT);
+    display_push(&buildings);
 
     /* Main Loop */
     bool running = true;
@@ -335,21 +360,22 @@ main(void)
         for (int i = 0; i < game.speed; i++)
             diff = game_step(&game);
         sidemenu_draw(&sidemenu, &game, diff);
-        map_draw(game.map, &world);
+        map_draw_terrain(game.map, &terrain);
+        map_draw_buildings(game.map, &buildings);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
         if (device_kbhit(wait)) {
             int key = device_getch();
             switch (key) {
             case 'b': {
-                char building = popup_build_select(&game, &world);
+                char building = popup_build_select(&game, &terrain);
                 if (building) {
                     yield_t cost = building_cost(building);
                     if (!spend(&game, cost)) {
                         popup_error("Not enough funding/materials!");
                     } else {
                         int x, y;
-                        if (select_position(&game, &world, &x, &y))
+                        if (select_position(&game, &terrain, &x, &y))
                             if (!game_build(&game, building, x, y))
                                 popup_error("Invalid building location!");
                     }
@@ -366,12 +392,11 @@ main(void)
                 break;
             case 'q':
                 running = !popup_quit(true);
-                FILE *save = fopen(PERSIST_FILE, "wb");
-                game_save(&game, save);
-                fclose(save);
                 break;
             case 'Q':
                 running = !popup_quit(false);
+                if (!running)
+                    atexit_save_game = NULL;
                 break;
             default:
                 popup_unknown_key(key);
@@ -380,12 +405,16 @@ main(void)
         }
     };
 
+    atexit_save();
+    atexit_save_game = NULL;
     game_free(&game);
 
-    display_pop(); // info
-    display_pop(); // world
+    display_pop(); // buildings
+    display_pop(); // terrain
+    display_pop(); // sidemenu
+    panel_free(&buildings);
+    panel_free(&terrain);
     panel_free(&sidemenu);
-    panel_free(&world);
     display_free();
     return 0;
 }

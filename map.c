@@ -198,23 +198,32 @@ base_font(enum map_base base, int x, int y)
 }
 
 void
-map_draw(map_t *map, panel_t *p)
+map_draw_terrain(map_t *map, panel_t *p)
 {
     for (size_t y = 0; y < MAP_HEIGHT; y++) {
         for (size_t x = 0; x < MAP_WIDTH; x++) {
-            char c;
-            font_t font;
+            char c = map->high[x][y].base;
+            font_t font = base_font(c, x, y);
+            panel_putc(p, x, y, font, c);
+        }
+    }
+}
+
+void
+map_draw_buildings(map_t *map, panel_t *p)
+{
+    for (size_t y = 0; y < MAP_HEIGHT; y++) {
+        for (size_t x = 0; x < MAP_WIDTH; x++) {
             enum building building = map->high[x][y].building;
             if (building != C_NONE) {
-                c = building;
-                if (map->high[x][y].building_age < 0)
+                char c = building;
+                font_t font = (font_t){COLOR_YELLOW, COLOR_BLACK, true};
+                if (map->high[x][y].building_age < 0) {
+                    font.fore = COLOR_CYAN;
                     c = tolower(c);
-                font = (font_t){COLOR_YELLOW, COLOR_BLACK, true};
-            } else {
-                c = map->high[x][y].base;
-                font = base_font(c, x, y);
+                }
+                panel_putc(p, x, y, font, c);
             }
-            panel_putc(p, x, y, font, c);
         }
     }
 }
