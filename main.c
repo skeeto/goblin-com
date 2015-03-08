@@ -9,10 +9,10 @@
 #include "map.h"
 #include "game.h"
 
-#define FPS 6
-#define PERIOD (1000000 / 6)
-#define SPEED_MAX 256
-#define SPEED_FACTOR 4
+#define FPS 30
+#define PERIOD (1000000 / FPS)
+#define SPEED_MAX 3125
+#define SPEED_FACTOR 5
 #define PERSIST_FILE "persist.gcom"
 
 #define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true}

@@ -37,7 +37,7 @@ yield_t building_yield(enum building);
 
 typedef struct game {
     uint64_t seed;
-    long time; // minutes
+    long time; // seconds
     int speed;
     double gold;
     double wood;

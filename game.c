@@ -108,16 +108,21 @@ game_build(game_t *game, enum building building, int x, int y)
     return valid;
 }
 
+#define MINUTE (60.0)
+#define HOUR (60.0 * 60.0)
+#define DAY (24.0 * HOUR)
+
 void
 game_date(game_t *game, char *buffer)
 {
-    long day = game->time / (60 * 24);
-    long hour = ((game->time % (60 * 60)) / 60) % 24;
-    long minute = game->time % 60;
+    long time = game->time;
+    long day = game->time / DAY;
+    time -= day * DAY;
+    long hour = time / HOUR;
+    time -= hour * HOUR;
+    long minute = time / MINUTE;
     sprintf(buffer, "day %ld, %ld:%02ld", day, hour, minute);
 }
-
-#define DAY (60.0 * 24.0)
 
 static void
 yield_apply(game_t *game, yield_t yield)
