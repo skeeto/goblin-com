@@ -75,20 +75,23 @@ sidemenu_draw(panel_t *p, game_t *game)
 static char
 popup_build_select(void)
 {
-    int width = 30;
-    int height = 16;
+    int width = 50;
+    int height = 11;
     panel_t build;
     panel_center_init(&build, width, height);
     display_push(&build);
+    font_t border = {COLOR_WHITE, COLOR_BLACK, false};
+    panel_border(&build, border);
+
     int input;
     char result = 0;
     panel_t *p = &build;
     font_t font = FONT_DEFAULT;
-    panel_puts(p, 1, 1, font, "(w) Lumber Yard");
-    panel_puts(p, 1, 3, font, "(f) Farm");
-    panel_puts(p, 1, 5, font, "(c) Cottage");
-    panel_puts(p, 1, 7, font, "(h) Hamlet");
-    panel_puts(p, 1, 9, font, "(m) Mine");
+    panel_puts(p, 1, 1, font, "(w) Lumberyard (+4 wood/t)");
+    panel_puts(p, 1, 3, font, "(f) Farm       (+4 food/t)");
+    panel_puts(p, 1, 5, font, "(c) Cottage    (-1 food/t, +2 heroes)");
+    panel_puts(p, 1, 7, font, "(h) Hamlet     (-2 food/t, +2 gold/t, +10 pop)");
+    panel_puts(p, 1, 9, font, "(m) Mine       (+4 gold/t)");
     font_t highlight = {COLOR_RED, COLOR_BLACK, true};
     for (int i = 1; i <= 9; i +=2)
         panel_attr(p, 2, i, highlight);
