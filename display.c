@@ -102,6 +102,15 @@ panel_init(panel_t *p, int x, int y, int w, int h)
 }
 
 void
+panel_center_init(panel_t *p, int w, int h)
+{
+    int x = DISPLAY_WIDTH / 2 - w / 2;
+    int y = DISPLAY_HEIGHT / 2 - h / 2;
+    panel_init(p, x, y, w, h);
+    panel_fill(p, FONT_DEFAULT, ' ');
+}
+
+void
 panel_free(panel_t *p)
 {
     assert(p->next == NULL);
@@ -138,6 +147,17 @@ panel_printf(panel_t *p, int x, int y, font_t font, char *format, ...)
     vsprintf(buffer, format, ap);
     va_end(ap);
     panel_puts(p, x, y, font, buffer);
+}
+
+void
+panel_attr(panel_t *p, int x, int y, font_t font)
+{
+    x += p->x;
+    y += p->y;
+    if (x >= 0 && x < DISPLAY_WIDTH && y >= 0 && y < DISPLAY_HEIGHT) {
+        p->tiles[x][y].transparent = false;
+        p->tiles[x][y].font = font;
+    }
 }
 
 void

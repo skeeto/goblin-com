@@ -2,7 +2,7 @@ CC     = x86_64-w64-mingw32-gcc
 CFLAGS = -std=c99 -Wall -Wextra -g3 -Os
 LDLIBS = -lm
 
-gcom.exe : main.c display.c map.c device_mingw.c
+gcom.exe : main.c display.c map.c game.c device_mingw.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :
