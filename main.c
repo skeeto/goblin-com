@@ -325,9 +325,16 @@ main(void)
         getchar();
         exit(EXIT_FAILURE);
     }
+    printf("Initializing ...\n");
     display_init();
     device_title("Goblin-COM");
 
+    panel_t loading;
+    char loading_message[] = "Initializing world ...";
+    panel_center_init(&loading, sizeof(loading_message), 1);
+    display_push(&loading);
+    panel_puts(&loading, 0, 0, FONT_DEFAULT, loading_message);
+    display_refresh();
     game_t game;
     FILE *save = fopen(PERSIST_FILE, "rb");
     if (save) {
@@ -339,6 +346,8 @@ main(void)
     }
     atexit_save_game = &game;
     atexit(atexit_save);
+    display_pop();
+    panel_free(&loading);
 
     panel_t sidemenu;
     panel_init(&sidemenu, DISPLAY_WIDTH - SIDEMENU_WIDTH, 0,
