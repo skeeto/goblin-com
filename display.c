@@ -113,6 +113,7 @@ panel_center_init(panel_t *p, int w, int h)
 void
 panel_free(panel_t *p)
 {
+    (void) p;
     assert(p->next == NULL);
 }
 

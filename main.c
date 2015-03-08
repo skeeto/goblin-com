@@ -95,7 +95,11 @@ popup_quit(bool saving)
 static void
 popup_unknown_key(int key)
 {
+#ifndef NDEBUG
     popup_error("Unknown input: %d", key);
+#else
+    (void) key;
+#endif
 }
 
 #define SIDEMENU_WIDTH (DISPLAY_WIDTH - MAP_WIDTH)
