@@ -10,6 +10,8 @@
 
 #define FPS 6
 #define PERIOD (1000000 / 6)
+#define SPEED_MAX 1000
+#define SPEED_FACTOR 4
 
 static bool
 is_exit_key(int key)
@@ -74,9 +76,9 @@ sidemenu_draw(panel_t *p, game_t *game)
     panel_puts(p, 5, 1, font_title, "Goblin-COM");
 
     font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true};
-    panel_printf(p, 2, 3, font_totals, "Gold: %ld", game->gold);
-    panel_printf(p, 2, 4, font_totals, "Pop.: %ld", game->population);
-    panel_printf(p, 2, 5, font_totals, "Wood: %ld", game->wood);
+    panel_printf(p, 2, 3, font_totals, "Gold: %ld", (long)game->gold);
+    panel_printf(p, 2, 4, font_totals, "Pop.: %ld", (long)game->population);
+    panel_printf(p, 2, 5, font_totals, "Wood: %ld", (long)game->wood);
 
     font_t base = {COLOR_WHITE, COLOR_BLACK, false};
     font_t highlight = {COLOR_RED, COLOR_BLACK, true};
@@ -89,7 +91,13 @@ sidemenu_draw(panel_t *p, game_t *game)
     panel_puts(p, x,   y+2, base, "Show Visibility");
     panel_attr(p, x+5, y+2, highlight);
 
-    panel_puts(p, 2, 21, base, "Speed: >>>>>");
+    char date[128];
+    game_date(game, date);
+    panel_puts(p, 2, 20, font_totals, date);
+
+    panel_puts(p, 2, 21, base, "Speed: ");
+    for (int x = 0, i = 1; i <= game->speed; i *= SPEED_FACTOR, x++)
+        panel_puts(p, 9 + x, 21, font_totals, ">");
 }
 
 static char
@@ -116,7 +124,7 @@ popup_build_select(game_t *game, panel_t *world)
     panel_puts(p, 5, 6, desc,
                "Place on grassland (.) [-1 food/t, +2 hero slots]");
     panel_puts(p, 1, 7, item, "(m) Mine       [-100 wood]");
-    panel_puts(p, 5, 8, desc, "Place on hill (=)");
+    panel_puts(p, 5, 8, desc, "Place on hill (=) [+4 gold/t, -1 wood/t]");
     panel_puts(p, 1, 9, item, "(h) Hamlet     [-20 wood]");
     panel_puts(p, 5, 10, desc, "Place on forest (#), grass (.), or hill (=)");
     panel_puts(p, 7, 11, desc, "[-2 food/t, +2 gold/t, +10 workers]");
@@ -220,10 +228,13 @@ main(void)
     /* Main Loop */
     bool running = true;
     while (running) {
+        for (int i = 0; i < game.speed; i++)
+            game_step(&game);
         sidemenu_draw(&sidemenu, &game);
         map_draw(game.map, &world);
         display_refresh();
-        if (device_kbhit(PERIOD)) {
+        uint64_t wait = device_uepoch() % PERIOD;
+        if (device_kbhit(wait)) {
             int key = device_getch();
             switch (key) {
             case 'b': {
@@ -235,6 +246,15 @@ main(void)
                             popup_error("Invalid building location!");
                 }
             } break;
+            case '>':
+                if (game.speed == 0)
+                    game.speed = 1;
+                else if (game.speed < SPEED_MAX)
+                    game.speed *= SPEED_FACTOR;
+                break;
+            case '<':
+                game.speed /= SPEED_FACTOR;
+                break;
             case 'q':
             case 3:
                 running = false;

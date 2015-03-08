@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "game.h"
@@ -6,8 +7,11 @@ void
 game_init(game_t *game, uint64_t seed)
 {
     game->seed = seed;
+    game->time = 0;
+    game->speed = 1;
     game->gold = INIT_GOLD;
     game->wood = INIT_WOOD;
+    game->food = INIT_FOOD;
     game->population = INIT_POPULATION;
     game->map = map_generate(seed);
     game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
@@ -71,4 +75,85 @@ game_build(game_t *game, enum building building, int x, int y)
         game->map->high[x][y].building_age = -1000;
     }
     return valid;
+}
+
+void
+game_date(game_t *game, char *buffer)
+{
+    long day = game->time / (60 * 24);
+    long hour = ((game->time % (60 * 60)) / 60) % 24;
+    long minute = game->time % 60;
+    sprintf(buffer, "day %ld, %ld:%02ld", day, hour, minute);
+}
+
+static void
+yield_apply(game_t *game, yield_t yield)
+{
+    double div = (60.0 * 24.0);
+    game->wood += yield.wood / div;
+    game->food += yield.food / div;
+    game->gold += yield.gold / div;
+}
+
+static void
+building_process(game_t *game, enum building building)
+{
+    yield_t yield = {0, 0, 0};
+    switch (building) {
+    case C_NONE:
+        return;
+    case C_CASTLE:
+        yield = YIELD_CASTLE;
+        break;
+    case C_LUMBERYARD:
+        yield = YIELD_LUMBERYARD;
+        break;
+    case C_STABLE:
+        yield = YIELD_STABLE;
+        break;
+    case C_HAMLET:
+        yield = YIELD_HAMLET;
+        break;
+    case C_MINE:
+        yield = YIELD_MINE;
+        break;
+    case C_ROAD:
+        yield = YIELD_ROAD;
+        break;
+    case C_FARM:
+        yield = YIELD_FARM;
+        break;
+    }
+    yield_apply(game, yield);
+}
+
+void
+yield_string(char *b, yield_t yield)
+{
+    b[0] = '[';
+    char *end = b + 1;
+    int count = 0;
+    if (yield.gold)
+        end += sprintf(end, "%s%d gold/t", count > 0 ? ", " : "", yield.gold);
+    if (yield.wood)
+        end += sprintf(end, "%s%d wood/t", count > 0 ? ", " : "", yield.wood);
+    if (yield.food)
+        end += sprintf(end, "%s%d food/t", count > 0 ? ", " : "", yield.food);
+    end[0] = ']';
+    end[1] = '\0';
+}
+
+void
+game_step(game_t *game)
+{
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            enum building building = game->map->high[x][y].building;
+            if (building != C_NONE) {
+                if (++game->map->high[x][y].building_age >= 0)
+                    building_process(game, building);
+            }
+        }
+    }
+    game->time++;
 }
