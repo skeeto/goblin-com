@@ -10,8 +10,10 @@
 
 #define FPS 6
 #define PERIOD (1000000 / 6)
-#define SPEED_MAX 1000
+#define SPEED_MAX 256
 #define SPEED_FACTOR 4
+
+#define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true}
 
 static bool
 is_exit_key(int key)
@@ -59,6 +61,25 @@ popup_error(char *format, ...)
     display_refresh();
 }
 
+static bool
+popup_quit(void)
+{
+    panel_t popup;
+    panel_center_init(&popup, 20, 3);
+    panel_puts(&popup, 1, 1, FONT_DEFAULT, "Really quit? (y/n)");
+    panel_attr(&popup, 15, 1, FONT_KEY);
+    panel_attr(&popup, 17, 1, FONT_KEY);
+    display_push(&popup);
+    display_refresh();
+    int input = device_getch();
+    display_pop();
+    panel_free(&popup);
+    display_refresh();
+    if (input == 'y' || input == 'Y')
+        return true;
+    return false;
+}
+
 static void
 popup_unknown_key(int key)
 {
@@ -81,15 +102,14 @@ sidemenu_draw(panel_t *p, game_t *game)
     panel_printf(p, 2, 5, font_totals, "Wood: %ld", (long)game->wood);
 
     font_t base = {COLOR_WHITE, COLOR_BLACK, false};
-    font_t highlight = {COLOR_RED, COLOR_BLACK, true};
     int x = 2;
     int y = 7;
     panel_puts(p, x,   y+0, base, "Create Building");
-    panel_attr(p, x+7, y+0, highlight);
+    panel_attr(p, x+7, y+0, FONT_KEY);
     panel_puts(p, x,   y+1, base, "View Heroes");
-    panel_attr(p, x+5, y+1, highlight);
+    panel_attr(p, x+5, y+1, FONT_KEY);
     panel_puts(p, x,   y+2, base, "Show Visibility");
-    panel_attr(p, x+5, y+2, highlight);
+    panel_attr(p, x+5, y+2, FONT_KEY);
 
     char date[128];
     game_date(game, date);
@@ -116,7 +136,6 @@ popup_build_select(game_t *game, panel_t *world)
     panel_t *p = &build;
     font_t item = {COLOR_WHITE, COLOR_BLACK, true};
     font_t desc = {COLOR_WHITE, COLOR_BLACK, false};
-    font_t highlight = {COLOR_RED, COLOR_BLACK, true};
     char cost[128];
     char yield[128];
 
@@ -126,7 +145,7 @@ popup_build_select(game_t *game, panel_t *world)
     panel_printf(p,   1, y++, item, "(w) Lumberyard [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc, "Target: forest (%c)", BASE_FOREST);
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_FARM, false);
     yield_string(yield, YIELD_FARM, true);
@@ -134,21 +153,21 @@ popup_build_select(game_t *game, panel_t *world)
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc, "Target: grassland (%c), forest (%c)",
                  BASE_GRASSLAND, BASE_FOREST);
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_STABLE, false);
     yield_string(yield, YIELD_STABLE, true);
     panel_printf(p, 1, y++, item, "(s) Stable [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc, "Target: grassland (%c)", BASE_GRASSLAND);
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_MINE, false);
     yield_string(yield, YIELD_MINE, true);
     panel_printf(p, 1, y++, item, "(m) Mine [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc, "Target: hill (%c)", BASE_HILL);
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_HAMLET, false);
     yield_string(yield, YIELD_HAMLET, true);
@@ -157,17 +176,17 @@ popup_build_select(game_t *game, panel_t *world)
     panel_printf(p, 5, y++, desc,
                  "Target: grassland (%c), forest (%c), hill (%c)",
                  BASE_GRASSLAND, BASE_FOREST, BASE_HILL);
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, YIELD_ROAD, false);
     yield_string(yield, YIELD_ROAD, true);
     panel_printf(p, 1, y++, item, "(r) Road [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc, "Target: (any)");
-    panel_attr(p, 2, y - 3, highlight);
+    panel_attr(p, 2, y - 3, FONT_KEY);
 
     while (result == 0 && !is_exit_key(input = game_getch(game, world)))
-        if (strchr("wfchm", input))
+        if (strchr("wfshmr", input))
             result = toupper(input);
     display_pop();
     panel_free(&build);
@@ -310,8 +329,7 @@ main(void)
                 game.speed /= SPEED_FACTOR;
                 break;
             case 'q':
-            case 3:
-                running = false;
+                running = !popup_quit();
                 break;
             default:
                 popup_unknown_key(key);

@@ -55,6 +55,7 @@ game_build(game_t *game, enum building building, int x, int y)
         case C_NONE:
         case C_CASTLE:
         case C_ROAD:
+            valid = true;
             break;
         case C_LUMBERYARD:
             valid = strchr("#", base) != NULL;
