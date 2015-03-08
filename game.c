@@ -34,6 +34,10 @@ game_build(game_t *game, enum building building, int x, int y)
             return true;
         }
     }
+    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT ||
+        game->map->high[x][y].building != C_NONE) {
+        return false;
+    }
 
     bool valid = false;
     if (x > 0 && game->map->high[x - 1][y].building != C_NONE)
@@ -72,7 +76,7 @@ game_build(game_t *game, enum building building, int x, int y)
     }
     if (valid) {
         game->map->high[x][y].building = building;
-        game->map->high[x][y].building_age = -1000;
+        game->map->high[x][y].building_age = INIT_BUILDING_AGE;
     }
     return valid;
 }
@@ -128,19 +132,25 @@ building_process(game_t *game, enum building building)
 }
 
 void
-yield_string(char *b, yield_t yield)
+yield_string(char *b, yield_t yield, bool rate)
 {
-    b[0] = '[';
-    char *end = b + 1;
+    char *end = b;
     int count = 0;
     if (yield.gold)
-        end += sprintf(end, "%s%d gold/t", count > 0 ? ", " : "", yield.gold);
+        end += sprintf(end, "%s%d gold%s",
+                       count++ > 0 ? ", " : "",
+                       yield.gold,
+                       rate ? "/d" : "");
     if (yield.wood)
-        end += sprintf(end, "%s%d wood/t", count > 0 ? ", " : "", yield.wood);
+        end += sprintf(end, "%s%d wood%s",
+                       count++ > 0 ? ", " : "",
+                       yield.wood,
+                       rate ? "/d" : "");
     if (yield.food)
-        end += sprintf(end, "%s%d food/t", count > 0 ? ", " : "", yield.food);
-    end[0] = ']';
-    end[1] = '\0';
+        end += sprintf(end, "%s%d food%s",
+                       count++ > 0 ? ", " : "",
+                       yield.food,
+                       rate ? "/d" : "");
 }
 
 void
@@ -156,4 +166,52 @@ game_step(game_t *game)
         }
     }
     game->time++;
+}
+
+yield_t
+building_cost(enum building building)
+{
+    switch (building) {
+    case C_CASTLE:
+        return COST_CASTLE;
+    case C_LUMBERYARD:
+        return COST_LUMBERYARD;
+    case C_FARM:
+        return COST_FARM;
+    case C_STABLE:
+        return COST_STABLE;
+    case C_MINE:
+        return COST_MINE;
+    case C_ROAD:
+        return COST_ROAD;
+    case C_HAMLET:
+        return COST_HAMLET;
+    case C_NONE:
+        break;
+    }
+    return (yield_t){0, 0, 0};
+}
+
+yield_t
+building_yield(enum building building)
+{
+    switch (building) {
+    case C_CASTLE:
+        return YIELD_CASTLE;
+    case C_LUMBERYARD:
+        return YIELD_LUMBERYARD;
+    case C_FARM:
+        return YIELD_FARM;
+    case C_STABLE:
+        return YIELD_STABLE;
+    case C_MINE:
+        return YIELD_MINE;
+    case C_ROAD:
+        return YIELD_ROAD;
+    case C_HAMLET:
+        return YIELD_HAMLET;
+    case C_NONE:
+        break;
+    }
+    return (yield_t){0, 0, 0};
 }

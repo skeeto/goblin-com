@@ -104,7 +104,7 @@ static char
 popup_build_select(game_t *game, panel_t *world)
 {
     int width = 56;
-    int height = 13;
+    int height = 20;
     panel_t build;
     panel_center_init(&build, width, height);
     display_push(&build);
@@ -116,21 +116,56 @@ popup_build_select(game_t *game, panel_t *world)
     panel_t *p = &build;
     font_t item = {COLOR_WHITE, COLOR_BLACK, true};
     font_t desc = {COLOR_WHITE, COLOR_BLACK, false};
-    panel_puts(p, 1, 1, item, "(w) Lumberyard [-2 gold]");
-    panel_puts(p, 5, 2, desc, "Place on forest (#) [+4 wood/t]");
-    panel_puts(p, 1, 3, item, "(f) Farm       [-10 wood]");
-    panel_puts(p, 5, 4, desc, "Place on grassland (.), forest (#) [+4 food/t]");
-    panel_puts(p, 1, 5, item, "(c) Stable     [-25 wood]");
-    panel_puts(p, 5, 6, desc,
-               "Place on grassland (.) [-1 food/t, +2 hero slots]");
-    panel_puts(p, 1, 7, item, "(m) Mine       [-100 wood]");
-    panel_puts(p, 5, 8, desc, "Place on hill (=) [+4 gold/t, -1 wood/t]");
-    panel_puts(p, 1, 9, item, "(h) Hamlet     [-20 wood]");
-    panel_puts(p, 5, 10, desc, "Place on forest (#), grass (.), or hill (=)");
-    panel_puts(p, 7, 11, desc, "[-2 food/t, +2 gold/t, +10 workers]");
     font_t highlight = {COLOR_RED, COLOR_BLACK, true};
-    for (int i = 1; i <= 9; i +=2)
-        panel_attr(p, 2, i, highlight);
+    char cost[128];
+    char yield[128];
+
+    int y = 1;
+    yield_string(cost, COST_LUMBERYARD, false);
+    yield_string(yield, YIELD_LUMBERYARD, true);
+    panel_printf(p,   1, y++, item, "(w) Lumberyard [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc, "Target: forest (%c)", BASE_FOREST);
+    panel_attr(p, 2, y - 3, highlight);
+
+    yield_string(cost, COST_FARM, false);
+    yield_string(yield, YIELD_FARM, true);
+    panel_printf(p, 1, y++, item, "(f) Farm [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc, "Target: grassland (%c), forest (%c)",
+                 BASE_GRASSLAND, BASE_FOREST);
+    panel_attr(p, 2, y - 3, highlight);
+
+    yield_string(cost, COST_STABLE, false);
+    yield_string(yield, YIELD_STABLE, true);
+    panel_printf(p, 1, y++, item, "(s) Stable [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc, "Target: grassland (%c)", BASE_GRASSLAND);
+    panel_attr(p, 2, y - 3, highlight);
+
+    yield_string(cost, COST_MINE, false);
+    yield_string(yield, YIELD_MINE, true);
+    panel_printf(p, 1, y++, item, "(m) Mine [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc, "Target: hill (%c)", BASE_HILL);
+    panel_attr(p, 2, y - 3, highlight);
+
+    yield_string(cost, COST_HAMLET, false);
+    yield_string(yield, YIELD_HAMLET, true);
+    panel_printf(p, 1, y++, item, "(h) Hamlet [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc,
+                 "Target: grassland (%c), forest (%c), hill (%c)",
+                 BASE_GRASSLAND, BASE_FOREST, BASE_HILL);
+    panel_attr(p, 2, y - 3, highlight);
+
+    yield_string(cost, YIELD_ROAD, false);
+    yield_string(yield, YIELD_ROAD, true);
+    panel_printf(p, 1, y++, item, "(r) Road [%s]", cost);
+    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
+    panel_printf(p, 5, y++, desc, "Target: (any)");
+    panel_attr(p, 2, y - 3, highlight);
+
     while (result == 0 && !is_exit_key(input = game_getch(game, world)))
         if (strchr("wfchm", input))
             result = toupper(input);
@@ -199,6 +234,20 @@ select_position(game_t *game, panel_t *world, int *x, int *y)
     return selected;
 }
 
+static bool
+spend(game_t *game, yield_t yield)
+{
+    if (game->food >= yield.food &&
+        game->wood >= yield.wood &&
+        game->gold >= yield.gold) {
+        game->food -= yield.food;
+        game->wood -= yield.wood;
+        game->gold -= yield.gold;
+        return true;
+    }
+    return false;
+}
+
 int
 main(void)
 {
@@ -240,10 +289,15 @@ main(void)
             case 'b': {
                 char building = popup_build_select(&game, &world);
                 if (building) {
-                    int x, y;
-                    if (select_position(&game, &world, &x, &y))
-                        if (!game_build(&game, building, x, y))
-                            popup_error("Invalid building location!");
+                    yield_t cost = building_cost(building);
+                    if (!spend(&game, cost)) {
+                        popup_error("Not enough funding/materials!");
+                    } else {
+                        int x, y;
+                        if (select_position(&game, &world, &x, &y))
+                            if (!game_build(&game, building, x, y))
+                                popup_error("Invalid building location!");
+                    }
                 }
             } break;
             case '>':

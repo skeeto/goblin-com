@@ -3,10 +3,11 @@
 #include <stdint.h>
 #include "map.h"
 
-#define INIT_GOLD        100
-#define INIT_WOOD        10
-#define INIT_FOOD        100
-#define INIT_POPULATION  100
+#define INIT_GOLD         100
+#define INIT_WOOD         100
+#define INIT_FOOD         10
+#define INIT_POPULATION   100
+#define INIT_BUILDING_AGE (-60 * 24) // 1 day
 
 typedef struct {
     int gold;
@@ -22,7 +23,17 @@ typedef struct {
 #define YIELD_ROAD       (yield_t){-1, 0, 0}
 #define YIELD_HAMLET     (yield_t){2, -2, 0}
 
-void yield_string(char *, yield_t);
+#define COST_CASTLE     (yield_t){1000, 1000, 1000}
+#define COST_LUMBERYARD (yield_t){25, 0, 0}
+#define COST_FARM       (yield_t){0, 0, 20}
+#define COST_STABLE     (yield_t){25, 0, 25}
+#define COST_MINE       (yield_t){0, 0, 100}
+#define COST_ROAD       (yield_t){1, 0, 0}
+#define COST_HAMLET     (yield_t){0, 0, 50}
+
+void yield_string(char *, yield_t, bool rate);
+yield_t building_cost(enum building);
+yield_t building_yield(enum building);
 
 typedef struct game {
     uint64_t seed;
