@@ -208,7 +208,7 @@ popup_build_select(game_t *game, panel_t *world)
     yield_string(yield, YIELD_ROAD, true);
     panel_printf(p, 1, y++, item, "(r) Road [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: (any)");
+    panel_printf(p, 5, y++, desc, "Target: (any land)");
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     while (result == 0 && !is_exit_key(input = game_getch(game, world)))

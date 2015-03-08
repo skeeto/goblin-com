@@ -168,17 +168,17 @@ yield_string(char *b, yield_t yield, bool rate)
         end += sprintf(end, "%s%d gold%s",
                        count++ > 0 ? ", " : "",
                        yield.gold,
-                       rate ? "/d" : "");
+                       rate ? "/day" : "");
     if (yield.wood)
         end += sprintf(end, "%s%d wood%s",
                        count++ > 0 ? ", " : "",
                        yield.wood,
-                       rate ? "/d" : "");
+                       rate ? "/day" : "");
     if (yield.food)
         end += sprintf(end, "%s%d food%s",
                        count++ > 0 ? ", " : "",
                        yield.food,
-                       rate ? "/d" : "");
+                       rate ? "/day" : "");
 }
 
 yield_t
