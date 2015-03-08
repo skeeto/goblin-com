@@ -391,13 +391,13 @@ main(void)
                 }
             } break;
             case '>':
-                if (game.speed == 0)
-                    game.speed = 1;
-                else if (game.speed < SPEED_MAX)
+                if (game.speed < SPEED_MAX)
                     game.speed *= SPEED_FACTOR;
                 break;
             case '<':
                 game.speed /= SPEED_FACTOR;
+                if (game.speed == 0)
+                    game.speed = 1;
                 break;
             case 'q':
                 running = !popup_quit(true);
