@@ -7,7 +7,7 @@
 #define INIT_WOOD         100
 #define INIT_FOOD         10
 #define INIT_POPULATION   250
-#define INIT_BUILDING_AGE (-60 * 24) // 1 day
+#define INIT_BUILDING_AGE (-60 * 60 * 24) // 1 day
 
 typedef struct {
     int gold;
