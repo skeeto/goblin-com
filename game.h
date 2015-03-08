@@ -47,6 +47,8 @@ typedef struct game {
 } game_t;
 
 void game_init(game_t *, uint64_t seed);
+bool game_save(game_t *game, FILE *out);
+bool game_load(game_t *game, FILE *out);
 void game_free(game_t *);
 
 bool game_build(game_t *, enum building, int x, int y);

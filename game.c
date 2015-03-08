@@ -17,6 +17,27 @@ game_init(game_t *game, uint64_t seed)
     game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
 }
 
+bool
+game_save(game_t *game, FILE *out)
+{
+    if (fwrite(game, sizeof(*game), 1, out) != 1)
+        return false;
+    if (fwrite(game->map->high, sizeof(game->map->high), 1, out) != 1)
+        return false;
+    return true;
+}
+
+bool
+game_load(game_t *game, FILE *out)
+{
+    if (fread(game, sizeof(*game), 1, out) == 1) {
+        game->map = map_generate(game->seed);
+        if (fread(&game->map->high, sizeof(game->map->high), 1, out) == 1)
+            return true;
+    }
+    return false;
+}
+
 void
 game_free(game_t *game)
 {

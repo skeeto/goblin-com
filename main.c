@@ -284,7 +284,13 @@ main(void)
     device_title("Goblin-COM");
 
     game_t game;
-    game_init(&game, device_uepoch());
+    FILE *save = fopen("persist.gcom", "rb");
+    if (save) {
+        game_load(&game, save);
+        fclose(save);
+    } else {
+        game_init(&game, device_uepoch());
+    }
 
     panel_t world;
     panel_init(&world, 0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -332,6 +338,9 @@ main(void)
                 break;
             case 'q':
                 running = !popup_quit();
+                FILE *save = fopen("persist.gcom", "wb");
+                game_save(&game, save);
+                fclose(save);
                 break;
             default:
                 popup_unknown_key(key);
