@@ -122,8 +122,8 @@ map_generate(uint64_t seed)
 {
     map_t *map = malloc(sizeof(*map));
     size_t alloc_size = WORK_SIZE * WORK_SIZE * sizeof(float);
-    float *buf_a = malloc(alloc_size);
-    float *buf_b = malloc(alloc_size);
+    float *buf_a = calloc(alloc_size, 1);
+    float *buf_b = calloc(alloc_size, 1);
     float *heightmap = buf_a;
     for (int i = 0; i < 4; i++)
         heightmap[i] = randf(&seed);

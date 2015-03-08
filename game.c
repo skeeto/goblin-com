@@ -32,7 +32,7 @@ game_load(game_t *game, FILE *out)
 {
     if (fread(game, sizeof(*game), 1, out) == 1) {
         game->map = map_generate(game->seed);
-        if (fread(&game->map->high, sizeof(game->map->high), 1, out) == 1)
+        if (fread(game->map->high, sizeof(game->map->high), 1, out) == 1)
             return true;
     }
     return false;
