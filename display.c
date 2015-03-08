@@ -169,7 +169,7 @@ panel_erase(panel_t *p, int x, int y)
 char
 panel_getc(panel_t *p, int x, int y)
 {
-    return p->tiles[x][y].c;
+    return p->tiles[x + p->x][y + p->y].c;
 }
 
 void

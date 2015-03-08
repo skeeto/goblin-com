@@ -86,6 +86,8 @@ game_build(game_t *game, enum building building, int x, int y)
             break;
         case C_HAMLET:
             valid = strchr(".#=", base) != NULL;
+            if (valid)
+                game->population += 100;
             break;
         case C_MINE:
             valid = strchr("=", base) != NULL;
@@ -115,13 +117,14 @@ game_date(game_t *game, char *buffer)
     sprintf(buffer, "day %ld, %ld:%02ld", day, hour, minute);
 }
 
+#define DAY (60.0 * 24.0)
+
 static void
 yield_apply(game_t *game, yield_t yield)
 {
-    double div = (60.0 * 24.0);
-    game->wood += yield.wood / div;
-    game->food += yield.food / div;
-    game->gold += yield.gold / div;
+    game->wood += yield.wood / DAY;
+    game->food += yield.food / DAY;
+    game->gold += yield.gold / DAY;
 }
 
 static void
@@ -178,9 +181,14 @@ yield_string(char *b, yield_t yield, bool rate)
                        rate ? "/d" : "");
 }
 
-void
+yield_t
 game_step(game_t *game)
 {
+    struct {
+        double gold;
+        double food;
+        double wood;
+    } init = {game->gold, game->food, game->wood};
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
             enum building building = game->map->high[x][y].building;
@@ -191,6 +199,12 @@ game_step(game_t *game)
         }
     }
     game->time++;
+    yield_t diff = {
+        .gold = (game->gold - init.gold) * DAY,
+        .food = (game->food - init.food) * DAY,
+        .wood = (game->wood - init.wood) * DAY
+    };
+    return diff;
 }
 
 yield_t

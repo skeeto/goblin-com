@@ -6,7 +6,7 @@
 #define INIT_GOLD         100
 #define INIT_WOOD         100
 #define INIT_FOOD         10
-#define INIT_POPULATION   100
+#define INIT_POPULATION   250
 #define INIT_BUILDING_AGE (-60 * 24) // 1 day
 
 typedef struct {
@@ -51,6 +51,6 @@ bool game_save(game_t *game, FILE *out);
 bool game_load(game_t *game, FILE *out);
 void game_free(game_t *);
 
-bool game_build(game_t *, enum building, int x, int y);
-void game_step(game_t *);
-void game_date(game_t *, char *);
+bool    game_build(game_t *, enum building, int x, int y);
+yield_t game_step(game_t *);
+void    game_date(game_t *, char *);

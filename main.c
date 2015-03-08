@@ -101,7 +101,7 @@ popup_unknown_key(int key)
 #define SIDEMENU_WIDTH (DISPLAY_WIDTH - MAP_WIDTH)
 
 static void
-sidemenu_draw(panel_t *p, game_t *game)
+sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 {
     font_t font_title = {COLOR_WHITE, COLOR_BLACK, false};
     panel_fill(p, font_title, ' ');
@@ -109,13 +109,27 @@ sidemenu_draw(panel_t *p, game_t *game)
     panel_puts(p, 5, 1, font_title, "Goblin-COM");
 
     font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true};
-    panel_printf(p, 2, 3, font_totals, "Gold: %ld", (long)game->gold);
-    panel_printf(p, 2, 4, font_totals, "Pop.: %ld", (long)game->population);
-    panel_printf(p, 2, 5, font_totals, "Wood: %ld", (long)game->wood);
+    int ty = 3;
+    panel_printf(p, 2, ty++, font_totals, "Gold: %ld%+d",
+                 (long)game->gold, (int)diff.gold);
+    panel_printf(p, 2, ty++, font_totals, "Food: %ld%+d",
+                 (long)game->food, (int)diff.food);
+    panel_printf(p, 2, ty++, font_totals, "Wood: %ld%+d",
+                 (long)game->wood, (int)diff.wood);
+    panel_printf(p, 2, ty++, font_totals, "Pop.: %ld", (long)game->population);
+    for (int y = 3; y < 6; y++) {
+        bool seen = false;
+        for (int x = 7; x < p->w - 1; x++) {
+            if (strchr("+-", panel_getc(p, x, y)) != NULL)
+                seen = true;
+            if (seen)
+                panel_attr(p, x, y, font_title);
+        }
+    }
 
     font_t base = {COLOR_WHITE, COLOR_BLACK, false};
     int x = 2;
-    int y = 7;
+    int y = 8;
     panel_puts(p, x,   y+0, base, "Create Building");
     panel_attr(p, x+7, y+0, FONT_KEY);
     panel_puts(p, x,   y+1, base, "View Heroes");
@@ -317,9 +331,10 @@ main(void)
     /* Main Loop */
     bool running = true;
     while (running) {
+        yield_t diff;
         for (int i = 0; i < game.speed; i++)
-            game_step(&game);
-        sidemenu_draw(&sidemenu, &game);
+            diff = game_step(&game);
+        sidemenu_draw(&sidemenu, &game, diff);
         map_draw(game.map, &world);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
