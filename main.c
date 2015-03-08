@@ -10,9 +10,7 @@ popup(int key)
     panel_t popup;
     panel_init(&popup, 10, 10, 20, 5);
     panel_fill(&popup, font, ' ');
-    char buffer[128];
-    snprintf(buffer, sizeof(buffer), "Unknown: %d", key);
-    panel_puts(&popup, 1, 1, font, buffer);
+    panel_printf(&popup, 1, 1, font, "Unknown: %d", key);
     display_push(&popup);
     display_getch();
     display_pop();

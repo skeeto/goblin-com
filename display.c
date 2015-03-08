@@ -1,4 +1,5 @@
-#include <stddef.h>
+#include <stdio.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <assert.h>
 #include "display.h"
@@ -123,6 +124,20 @@ panel_puts(panel_t *p, int x, int y, font_t font, char *s)
 {
     for (; *s; s++, x++)
         panel_putc(p, x, y, font, *s);
+}
+
+void
+panel_printf(panel_t *p, int x, int y, font_t font, char *format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int length = vsnprintf(NULL, 0, format, ap);
+    va_end(ap);
+    char buffer[length + 1];
+    va_start(ap, format);
+    vsprintf(buffer, format, ap);
+    va_end(ap);
+    panel_puts(p, x, y, font, buffer);
 }
 
 void
