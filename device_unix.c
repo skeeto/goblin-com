@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <termios.h>
@@ -31,7 +32,8 @@ void
 device_free(void)
 {
     tcsetattr(STDIN_FILENO, TCSANOW, &termios_orig);
-    printf("\e[m");
+    device_cursor(true);
+    printf("\e[m\n");
 }
 
 void
@@ -78,6 +80,11 @@ device_getch(void)
         read(STDIN_FILENO, code, sizeof(code));
         return code[1] + 256;
     } else {
+        if (c == 3) {
+            /* SIGINT */
+            device_free();
+            exit(EXIT_FAILURE);
+        }
         return c;
     }
 }
