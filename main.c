@@ -188,6 +188,8 @@ popup_build_select(game_t *game, panel_t *world)
     while (result == 0 && !is_exit_key(input = game_getch(game, world)))
         if (strchr("wfshmr", input))
             result = toupper(input);
+    if (result == 'R')
+        result = '+';
     display_pop();
     panel_free(&build);
     return result;

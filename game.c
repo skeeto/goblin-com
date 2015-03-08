@@ -55,7 +55,7 @@ game_build(game_t *game, enum building building, int x, int y)
         case C_NONE:
         case C_CASTLE:
         case C_ROAD:
-            valid = true;
+            valid = strchr(" ~", base) == NULL;
             break;
         case C_LUMBERYARD:
             valid = strchr("#", base) != NULL;
@@ -77,7 +77,10 @@ game_build(game_t *game, enum building building, int x, int y)
     }
     if (valid) {
         game->map->high[x][y].building = building;
-        game->map->high[x][y].building_age = INIT_BUILDING_AGE;
+        if (building == C_ROAD)
+            game->map->high[x][y].building_age = 0;
+        else
+            game->map->high[x][y].building_age = INIT_BUILDING_AGE;
     }
     return valid;
 }

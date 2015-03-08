@@ -107,7 +107,7 @@ summarize(map_t *map, uint64_t *seed)
                 base = BASE_MOUNTAIN;
             else if (std > 0.04)
                 base = BASE_HILL;
-            else if (randf(seed) > 0.3)
+            else if (randf(seed) > -0.2)
                 base = BASE_GRASSLAND;
             else
                 base = BASE_FOREST;
