@@ -168,12 +168,16 @@ map_draw(map_t *map, panel_t *p)
                 font.back = COLOR_BLUE;
                 c = ' ';
                 break;
-            case COAST:
+            case COAST: {
                 font.fore = COLOR_WHITE;
                 font.back = COLOR_BLUE;
-                font.bold = rand() % 2;
+                float dx = (x / (float)MAP_WIDTH) - 0.5;
+                float dy = (y / (float)MAP_HEIGHT) - 0.5;
+                float dist = sqrt(dx * dx + dy * dy) * 100;
+                float offset = (device_uepoch() / 100000) % 31;
+                font.bold = sinf(dist + offset) < 0 ? true : false;
                 c = '~';
-                break;
+            } break;
             case GRASS:
                 font.fore = COLOR_GREEN;
                 font.back = COLOR_GREEN;
