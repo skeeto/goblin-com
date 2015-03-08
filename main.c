@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 #include "display.h"
 #include "map.h"
 #include "game.h"
@@ -12,6 +13,7 @@
 #define PERIOD (1000000 / 6)
 #define SPEED_MAX 256
 #define SPEED_FACTOR 4
+#define PERSIST_FILE "persist.gcom"
 
 #define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true}
 
@@ -62,13 +64,23 @@ popup_error(char *format, ...)
 }
 
 static bool
-popup_quit(void)
+popup_quit(bool saving)
 {
     panel_t popup;
-    panel_center_init(&popup, 20, 3);
-    panel_puts(&popup, 1, 1, FONT_DEFAULT, "Really quit? (y/n)");
-    panel_attr(&popup, 15, 1, FONT_KEY);
-    panel_attr(&popup, 17, 1, FONT_KEY);
+    char *message;
+    if (saving)
+        message = "Really quit? (y/n)";
+    else
+        message = "Really quit without saving? (y/n)";
+    size_t length = strlen(message);
+    panel_center_init(&popup, length + 2, 3);
+    panel_puts(&popup, 1, 1, FONT_DEFAULT, message);
+    panel_attr(&popup, length - 3, 1, FONT_KEY);
+    panel_attr(&popup, length - 1, 1, FONT_KEY);
+    font_t alert = {COLOR_YELLOW, COLOR_BLACK, true};
+    if (!saving)
+        for (int i = 0; i < 14; i++)
+            panel_attr(&popup, i + 13, 1, alert);
     display_push(&popup);
     display_refresh();
     int input = device_getch();
@@ -284,10 +296,11 @@ main(void)
     device_title("Goblin-COM");
 
     game_t game;
-    FILE *save = fopen("persist.gcom", "rb");
+    FILE *save = fopen(PERSIST_FILE, "rb");
     if (save) {
         game_load(&game, save);
         fclose(save);
+        unlink(PERSIST_FILE);
     } else {
         game_init(&game, device_uepoch());
     }
@@ -337,10 +350,13 @@ main(void)
                 game.speed /= SPEED_FACTOR;
                 break;
             case 'q':
-                running = !popup_quit();
-                FILE *save = fopen("persist.gcom", "wb");
+                running = !popup_quit(true);
+                FILE *save = fopen(PERSIST_FILE, "wb");
                 game_save(&game, save);
                 fclose(save);
+                break;
+            case 'Q':
+                running = !popup_quit(false);
                 break;
             default:
                 popup_unknown_key(key);

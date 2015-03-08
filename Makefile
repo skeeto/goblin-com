@@ -5,4 +5,4 @@ gcom : main.c display.c map.c game.c device_unix.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :
-	$(RM) gcom gcom.exe *.o
+	$(RM) *.gcom gcom gcom.exe *.o
