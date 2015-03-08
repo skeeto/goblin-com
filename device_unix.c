@@ -10,7 +10,8 @@
 
 #define FONT_INVALID {-1, -1, -1};
 static font_t device_font_last = FONT_INVALID;
-
+static bool cursor_visible = true;
+static int cursor_x, cursor_y;
 struct termios termios_orig;
 
 void
@@ -39,6 +40,8 @@ device_free(void)
 void
 device_move(int x, int y)
 {
+    cursor_x = x;
+    cursor_y = y;
     device_font_last = (font_t)FONT_INVALID;
     printf("\e[%d;%dH", y + 1, x + 1);
 }
@@ -46,7 +49,20 @@ device_move(int x, int y)
 void
 device_cursor(bool show)
 {
-    printf("\e[?25%c", show ? 'h' : 'l');
+    if (cursor_visible != show)  {
+        cursor_visible = show;
+        printf("\e[?25%c", show ? 'h' : 'l');
+    }
+}
+
+bool
+device_cursor_get(int *x, int *y)
+{
+    if (x)
+        *x = cursor_x;
+    if (y)
+        *y = cursor_y;
+    return cursor_visible;
 }
 
 void
@@ -58,6 +74,7 @@ device_putc(font_t font, char c)
         printf("\e[%d;%d%sm%c", font.fore + 30, font.back + 40,
                font.bold ? ";1" : ";2", c);
     device_font_last = font;
+    cursor_x++;
 }
 
 void
