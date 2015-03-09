@@ -342,6 +342,7 @@ main(void)
         unlink(PERSIST_FILE);
     } else {
         game_init(&game, device_uepoch());
+        game.speed = SPEED_FACTOR;
     }
     atexit_save_game = &game;
     atexit(atexit_save);
