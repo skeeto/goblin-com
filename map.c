@@ -103,6 +103,8 @@ summarize(map_t *map, uint64_t *seed)
                 base = BASE_OCEAN;
             else if (mean < -0.6)
                 base = BASE_COAST;
+            else if (mean < -0.5)
+                base = BASE_SAND;
             else if (std > 0.05)
                 base = BASE_MOUNTAIN;
             else if (std > 0.04)
@@ -171,27 +173,33 @@ base_font(enum map_base base, int x, int y)
         float dy = (y / (float)MAP_HEIGHT) - 0.5;
         float dist = sqrt(dx * dx + dy * dy) * 100;
         float offset = fmod(device_uepoch() / 500000.0, 3.141592653589793 * 2);
-        font.bold = sinf(dist + offset) < 0 ? true : false;
+        font.fore_bright = sinf(dist + offset) < 0 ? true : false;
     } break;
     case BASE_GRASSLAND:
         font.fore = COLOR_GREEN;
         font.back = COLOR_GREEN;
-        font.bold = true;
+        font.fore_bright = true;
         break;
     case BASE_FOREST:
         font.fore = COLOR_GREEN;
         font.back = COLOR_GREEN;
-        font.bold = true;
+        font.fore_bright = true;
         break;
     case BASE_HILL:
         font.fore = COLOR_BLACK;
         font.back = COLOR_GREEN;
-        font.bold = true;
+        font.fore_bright = true;
         break;
     case BASE_MOUNTAIN:
         font.fore = COLOR_WHITE;
         font.back = COLOR_WHITE;
-        font.bold = true;
+        font.fore_bright = true;
+        break;
+    case BASE_SAND:
+        font.fore = COLOR_YELLOW;
+        font.back = COLOR_YELLOW;
+        font.fore_bright = true;
+        font.back_bright = true;
         break;
     }
     return font;
@@ -217,7 +225,7 @@ map_draw_buildings(map_t *map, panel_t *p)
             enum building building = map->high[x][y].building;
             if (building != C_NONE) {
                 char c = building;
-                font_t font = (font_t){COLOR_YELLOW, COLOR_BLACK, true};
+                font_t font = (font_t){COLOR_YELLOW, COLOR_BLACK, true, false};
                 if (map->high[x][y].building_age < 0) {
                     font.fore = COLOR_CYAN;
                     c = tolower(c);

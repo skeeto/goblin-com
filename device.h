@@ -21,17 +21,18 @@
 #define COLOR_CYAN    6
 #define COLOR_WHITE   7
 
-#define FONT_DEFAULT ((font_t){COLOR_WHITE, COLOR_BLACK, true})
+#define FONT_DEFAULT ((font_t){COLOR_WHITE, COLOR_BLACK, true, false})
 
 typedef struct {
     uint8_t fore, back;
-    bool bold;
+    bool fore_bright, back_bright;
 } font_t;
 
 static inline bool
 font_equal(font_t a, font_t b)
 {
-    return a.fore == b.fore && a.back == b.back && a.bold == b.bold;
+    return a.fore == b.fore && a.back == b.back &&
+        a.fore_bright == b.fore_bright && a.back_bright && b.back_bright;
 }
 
 void     device_init(void);

@@ -15,7 +15,7 @@
 #define SPEED_FACTOR 5
 #define PERSIST_FILE "persist.gcom"
 
-#define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true}
+#define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true, false}
 
 static bool
 is_exit_key(int key)
@@ -38,7 +38,7 @@ game_getch(game_t *game, panel_t *terrain)
 static void
 popup_error(char *format, ...)
 {
-    font_t font = {COLOR_YELLOW, COLOR_BLACK, true};
+    font_t font = {COLOR_YELLOW, COLOR_BLACK, true, false};
     va_list ap;
     va_start(ap, format);
     int length = vsnprintf(NULL, 0, format, ap);
@@ -77,7 +77,7 @@ popup_quit(bool saving)
     panel_puts(&popup, 1, 1, FONT_DEFAULT, message);
     panel_attr(&popup, length - 3, 1, FONT_KEY);
     panel_attr(&popup, length - 1, 1, FONT_KEY);
-    font_t alert = {COLOR_YELLOW, COLOR_BLACK, true};
+    font_t alert = {COLOR_YELLOW, COLOR_BLACK, true, false};
     if (!saving)
         for (int i = 0; i < 14; i++)
             panel_attr(&popup, i + 13, 1, alert);
@@ -107,12 +107,12 @@ popup_unknown_key(int key)
 static void
 sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 {
-    font_t font_title = {COLOR_WHITE, COLOR_BLACK, false};
+    font_t font_title = {COLOR_WHITE, COLOR_BLACK, false, false};
     panel_fill(p, font_title, ' ');
     panel_border(p, font_title);
     panel_puts(p, 5, 1, font_title, "Goblin-COM");
 
-    font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true};
+    font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true, false};
     int ty = 3;
     panel_printf(p, 2, ty++, font_totals, "Gold: %ld%+d",
                  (long)game->gold, (int)diff.gold);
@@ -131,7 +131,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
         }
     }
 
-    font_t base = {COLOR_WHITE, COLOR_BLACK, false};
+    font_t base = {COLOR_WHITE, COLOR_BLACK, false, false};
     int x = 2;
     int y = 8;
     panel_puts(p, x,   y+0, base, "Create Building");
@@ -158,14 +158,14 @@ popup_build_select(game_t *game, panel_t *terrain)
     panel_t build;
     panel_center_init(&build, width, height);
     display_push(&build);
-    font_t border = {COLOR_WHITE, COLOR_BLACK, false};
+    font_t border = {COLOR_WHITE, COLOR_BLACK, false, false};
     panel_border(&build, border);
 
     int input;
     char result = 0;
     panel_t *p = &build;
-    font_t item = {COLOR_WHITE, COLOR_BLACK, true};
-    font_t desc = {COLOR_WHITE, COLOR_BLACK, false};
+    font_t item = {COLOR_WHITE, COLOR_BLACK, true, false};
+    font_t desc = {COLOR_WHITE, COLOR_BLACK, false, false};
     char cost[128];
     char yield[128];
 
@@ -264,7 +264,7 @@ arrow_adjust(int input, int *x, int *y)
 static bool
 select_position(game_t *game, panel_t *world, int *x, int *y)
 {
-    font_t highlight = {COLOR_WHITE, COLOR_RED, true};
+    font_t highlight = {COLOR_WHITE, COLOR_RED, true, false};
     *x = MAP_WIDTH / 2;
     *y = MAP_HEIGHT / 2;
     bool selected = false;

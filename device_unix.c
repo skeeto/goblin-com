@@ -8,7 +8,7 @@
 #include <sys/ioctl.h>
 #include "device.h"
 
-#define FONT_INVALID {-1, -1, -1};
+#define FONT_INVALID {-1, -1, -1, -1};
 static font_t device_font_last = FONT_INVALID;
 static bool cursor_visible = true;
 static int cursor_x, cursor_y;
@@ -71,8 +71,10 @@ device_putc(font_t font, char c)
     if (font_equal(device_font_last, font))
         putchar(c);
     else
-        printf("\e[%d;%d%sm%c", font.fore + 30, font.back + 40,
-               font.bold ? ";1" : ";2", c);
+        printf("\e[%d;%d%sm%c",
+               font.fore + 30,
+               font.back + 40 + (font.back_bright ? 60 : 0),
+               font.fore_bright ? ";1" : ";2", c);
     device_font_last = font;
     cursor_x++;
 }

@@ -7,7 +7,8 @@
 
 enum map_base {
     BASE_OCEAN = ' ', BASE_COAST = '~', BASE_GRASSLAND = '.',
-    BASE_FOREST = '#', BASE_HILL = '=', BASE_MOUNTAIN = '^'
+    BASE_FOREST = '#', BASE_HILL = '=', BASE_MOUNTAIN = '^',
+    BASE_SAND = ':'
 };
 
 enum building {

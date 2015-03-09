@@ -110,8 +110,10 @@ device_putc(font_t font, char c)
         color |= BACKGROUND_BLUE;
         break;
     }
-    if (font.bold)
+    if (font.fore_bright)
         color |= FOREGROUND_INTENSITY;
+    if (font.back_bright)
+        color |= BACKGROUND_INTENSITY;
     SetConsoleTextAttribute(console_out, color);
     WriteConsole(console_out, &c, 1, NULL, NULL);
     cursor_x++;
