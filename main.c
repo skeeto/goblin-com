@@ -286,17 +286,12 @@ select_position(game_t *game, panel_t *world, int *x, int *y)
 }
 
 static bool
-spend(game_t *game, yield_t yield)
+can_afford(game_t *game, yield_t yield)
 {
-    if (game->food >= yield.food &&
+    return
+        game->food >= yield.food &&
         game->wood >= yield.wood &&
-        game->gold >= yield.gold) {
-        game->food -= yield.food;
-        game->wood -= yield.wood;
-        game->gold -= yield.gold;
-        return true;
-    }
-    return false;
+        game->gold >= yield.gold;
 }
 
 static bool
@@ -384,7 +379,7 @@ main(void)
                 char building = popup_build_select(&game, &terrain);
                 if (building) {
                     yield_t cost = building_cost(building);
-                    if (!spend(&game, cost)) {
+                    if (!can_afford(&game, cost)) {
                         popup_error("Not enough funding/materials!");
                     } else {
                         int x, y;

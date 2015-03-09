@@ -99,6 +99,10 @@ game_build(game_t *game, enum building building, int x, int y)
         }
     }
     if (valid) {
+        yield_t cost = building_cost(building);
+        game->food -= cost.food;
+        game->wood -= cost.wood;
+        game->gold -= cost.gold;
         game->map->high[x][y].building = building;
         if (building == C_ROAD)
             game->map->high[x][y].building_age = 0;
