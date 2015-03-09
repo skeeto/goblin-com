@@ -51,7 +51,7 @@ device_cursor_get(int *x, int *y)
 }
 
 void
-device_putc(font_t font, char c)
+device_putc(font_t font, uint16_t c)
 {
     WORD color = 0;
     switch (font.fore) {
@@ -115,7 +115,7 @@ device_putc(font_t font, char c)
     if (font.back_bright)
         color |= BACKGROUND_INTENSITY;
     SetConsoleTextAttribute(console_out, color);
-    WriteConsole(console_out, &c, 1, NULL, NULL);
+    WriteConsoleW(console_out, &c, 1, NULL, NULL);
     cursor_x++;
 }
 

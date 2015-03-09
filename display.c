@@ -4,10 +4,11 @@
 #include <string.h>
 #include <assert.h>
 #include "display.h"
+#include "utf.h"
 
 static struct {
     struct {
-        char c;
+        uint16_t c;
         font_t font;
     } current[DISPLAY_WIDTH][DISPLAY_HEIGHT];
     panel_t base;
@@ -63,8 +64,8 @@ display_refresh(void)
             panel_t *p = display.panels;
             while (p->tiles[x][y].transparent)
                 p = p->next;
-            char oldc = display.current[x][y].c;
-            char newc = p->tiles[x][y].c;
+            uint16_t oldc = display.current[x][y].c;
+            uint16_t newc = p->tiles[x][y].c;
             font_t oldf = display.current[x][y].font;
             font_t newf = p->tiles[x][y].font;
             if (oldc != newc || !font_equal(oldf, newf)) {
@@ -125,7 +126,7 @@ panel_free(panel_t *p)
 }
 
 void
-panel_putc(panel_t *p, int x, int y, font_t font, char c)
+panel_putc(panel_t *p, int x, int y, font_t font, uint16_t c)
 {
     x += p->x;
     y += p->y;
@@ -139,8 +140,12 @@ panel_putc(panel_t *p, int x, int y, font_t font, char c)
 void
 panel_puts(panel_t *p, int x, int y, font_t font, char *s)
 {
-    for (; *s; s++, x++)
-        panel_putc(p, x, y, font, *s);
+    for (uint8_t *s8 = (uint8_t *)s; *s8; s8 += utf8_charlen(*s8), x++) {
+        uint32_t c = utf8_to_32(s8);
+        assert(c <= UINT16_MAX);
+        panel_putc(p, x, y, font, c);
+    }
+
 }
 
 void
@@ -174,14 +179,14 @@ panel_erase(panel_t *p, int x, int y)
     p->tiles[x][y].transparent = true;
 }
 
-char
+uint16_t
 panel_getc(panel_t *p, int x, int y)
 {
     return p->tiles[x + p->x][y + p->y].c;
 }
 
 void
-panel_fill(panel_t *p, font_t font, char c)
+panel_fill(panel_t *p, font_t font, uint16_t c)
 {
     for (int y = 0; y < p->h; y++)
         for (int x = 0; x < p->w; x++)

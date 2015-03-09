@@ -8,6 +8,7 @@
 #include "display.h"
 #include "map.h"
 #include "game.h"
+#include "utf.h"
 
 #define FPS 30
 #define PERIOD (1000000 / FPS)
@@ -329,10 +330,10 @@ main(void)
     device_title("Goblin-COM");
 
     panel_t loading;
-    char loading_message[] = "Initializing world ...";
+    uint8_t loading_message[] = "Initializing world ...";
     panel_center_init(&loading, sizeof(loading_message), 1);
     display_push(&loading);
-    panel_puts(&loading, 0, 0, FONT_DEFAULT, loading_message);
+    panel_puts(&loading, 0, 0, FONT_DEFAULT, (char *)loading_message);
     display_refresh();
     game_t game;
     FILE *save = fopen(PERSIST_FILE, "rb");

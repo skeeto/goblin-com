@@ -9,7 +9,7 @@
 typedef struct panel {
     int x, y, w, h;
     struct {
-        char c;
+        uint16_t c;
         bool transparent;
         font_t font;
     } tiles[DISPLAY_WIDTH][DISPLAY_HEIGHT];
@@ -24,14 +24,14 @@ void display_refresh(void);
 void display_invalidate(void);
 int  display_getch(void);
 
-void panel_init(panel_t *, int x, int y, int w, int h);
-void panel_center_init(panel_t *, int w, int h);
-void panel_free(panel_t *);
-void panel_putc(panel_t *, int x, int y, font_t, char);
-void panel_puts(panel_t *, int x, int y, font_t, char *);
-void panel_printf(panel_t *, int x, int y, font_t, char *format, ...);
-void panel_attr(panel_t *, int x, int y, font_t);
-void panel_erase(panel_t *, int x, int y);
-char panel_getc(panel_t *, int x, int y);
-void panel_fill(panel_t *, font_t, char);
-void panel_border(panel_t *, font_t);
+void     panel_init(panel_t *, int x, int y, int w, int h);
+void     panel_center_init(panel_t *, int w, int h);
+void     panel_free(panel_t *);
+void     panel_putc(panel_t *, int x, int y, font_t, uint16_t);
+void     panel_puts(panel_t *, int x, int y, font_t, char *);
+void     panel_printf(panel_t *, int x, int y, font_t, char *format, ...);
+void     panel_attr(panel_t *, int x, int y, font_t);
+void     panel_erase(panel_t *, int x, int y);
+uint16_t panel_getc(panel_t *, int x, int y);
+void     panel_fill(panel_t *, font_t, uint16_t);
+void     panel_border(panel_t *, font_t);

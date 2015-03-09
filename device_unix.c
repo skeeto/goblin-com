@@ -7,6 +7,7 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include "device.h"
+#include "utf.h"
 
 #define FONT_INVALID {-1, -1, -1, -1};
 static font_t device_font_last = FONT_INVALID;
@@ -66,15 +67,17 @@ device_cursor_get(int *x, int *y)
 }
 
 void
-device_putc(font_t font, char c)
+device_putc(font_t font, uint16_t c)
 {
+    uint8_t utf8[7] = {0};
+    utf32_to_8(c, utf8);
     if (font_equal(device_font_last, font))
-        putchar(c);
+        fputs((char *)utf8, stdout);
     else
-        printf("\e[%d;%dm%c",
+        printf("\e[%d;%dm%s",
                font.fore + 30 + (font.fore_bright ? 60 : 0),
                font.back + 40 + (font.back_bright ? 60 : 0),
-               c);
+               (char *)utf8);
     device_font_last = font;
     cursor_x++;
 }
