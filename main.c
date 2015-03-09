@@ -395,10 +395,12 @@ main(void)
                 }
             } break;
             case '>':
+            case '.':
                 if (game.speed < SPEED_MAX)
                     game.speed *= SPEED_FACTOR;
                 break;
             case '<':
+            case ',':
                 game.speed /= SPEED_FACTOR;
                 if (game.speed == 0)
                     game.speed = 1;
