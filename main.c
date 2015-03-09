@@ -208,7 +208,7 @@ popup_build_select(game_t *game, panel_t *terrain)
                  BASE_GRASSLAND, BASE_FOREST, BASE_HILL);
     panel_attr(p, 2, y - 3, FONT_KEY);
 
-    yield_string(cost, YIELD_ROAD, false);
+    yield_string(cost, COST_ROAD, false);
     yield_string(yield, YIELD_ROAD, true);
     panel_printf(p, 1, y++, item, "(r) Road [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
