@@ -1,3 +1,4 @@
 gcom
 gcom.exe
 *.o
+*.gcom
