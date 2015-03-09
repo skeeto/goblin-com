@@ -71,10 +71,10 @@ device_putc(font_t font, char c)
     if (font_equal(device_font_last, font))
         putchar(c);
     else
-        printf("\e[%d;%d%sm%c",
-               font.fore + 30,
+        printf("\e[%d;%dm%c",
+               font.fore + 30 + (font.fore_bright ? 60 : 0),
                font.back + 40 + (font.back_bright ? 60 : 0),
-               font.fore_bright ? ";1" : ";2", c);
+               c);
     device_font_last = font;
     cursor_x++;
 }
