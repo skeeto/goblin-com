@@ -197,15 +197,15 @@ void
 panel_border(panel_t *p, font_t font)
 {
     for (int x = 1; x < p->w - 1; x++) {
-        panel_putc(p, x, 0,        font, '-');
-        panel_putc(p, x, p->h - 1, font, '-');
+        panel_putc(p, x, 0,        font, 0x2500);
+        panel_putc(p, x, p->h - 1, font, 0x2500);
     }
     for (int y = 1; y < p->h - 1; y++) {
-        panel_putc(p, 0,        y, font, '|');
-        panel_putc(p, p->w - 1, y, font, '|');
+        panel_putc(p, 0,        y, font, 0x2502);
+        panel_putc(p, p->w - 1, y, font, 0x2502);
     }
-    panel_putc(p, 0,        0,        font, '/');
-    panel_putc(p, p->w - 1, 0,        font, '\\');
-    panel_putc(p, 0,        p->h - 1, font, '\\');
-    panel_putc(p, p->w - 1, p->h - 1, font, '/');
+    panel_putc(p, 0,        0,        font, 0x250C);
+    panel_putc(p, p->w - 1, 0,        font, 0x2510);
+    panel_putc(p, 0,        p->h - 1, font, 0x2514);
+    panel_putc(p, p->w - 1, p->h - 1, font, 0x2518);
 }
