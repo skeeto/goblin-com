@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <string.h>
 #include <assert.h>
 #include "display.h"
 
@@ -77,6 +78,12 @@ display_refresh(void)
         }
     }
     device_flush();
+}
+
+void
+display_invalidate(void)
+{
+    memset(display.current, 0, sizeof(display.current));
 }
 
 int

@@ -21,6 +21,7 @@ void display_free(void);
 void display_push(panel_t *);
 void display_pop(void);
 void display_refresh(void);
+void display_invalidate(void);
 int  display_getch(void);
 
 void panel_init(panel_t *, int x, int y, int w, int h);

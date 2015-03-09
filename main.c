@@ -401,6 +401,9 @@ main(void)
                 if (game.speed == 0)
                     game.speed = 1;
                 break;
+            case 'R':
+                display_invalidate();
+                break;
             case 'q':
                 running = !popup_quit(true);
                 break;
