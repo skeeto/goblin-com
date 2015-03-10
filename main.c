@@ -290,9 +290,9 @@ static bool
 can_afford(game_t *game, yield_t yield)
 {
     return
-        game->food >= yield.food &&
-        game->wood >= yield.wood &&
-        game->gold >= yield.gold;
+        (yield.food == 0 || game->food >= yield.food) &&
+        (yield.wood == 0 || game->wood >= yield.wood) &&
+        (yield.gold == 0 || game->gold >= yield.gold);
 }
 
 static bool
