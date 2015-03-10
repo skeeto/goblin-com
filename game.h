@@ -36,7 +36,7 @@ yield_t building_cost(uint16_t);
 yield_t building_yield(uint16_t);
 
 typedef struct game {
-    uint64_t seed;
+    uint64_t map_seed;
     long time; // seconds
     int speed;
     double gold;
@@ -46,7 +46,7 @@ typedef struct game {
     map_t *map;
 } game_t;
 
-void game_init(game_t *, uint64_t seed);
+void game_init(game_t *, uint64_t map_seed);
 bool game_save(game_t *game, FILE *out);
 bool game_load(game_t *game, FILE *out);
 void game_free(game_t *);

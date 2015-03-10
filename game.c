@@ -4,16 +4,16 @@
 #include "game.h"
 
 void
-game_init(game_t *game, uint64_t seed)
+game_init(game_t *game, uint64_t map_seed)
 {
-    game->seed = seed;
+    game->map_seed = map_seed;
     game->time = 0;
     game->speed = 1;
     game->gold = INIT_GOLD;
     game->wood = INIT_WOOD;
     game->food = INIT_FOOD;
     game->population = INIT_POPULATION;
-    game->map = map_generate(seed);
+    game->map = map_generate(map_seed);
     game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
 }
 
@@ -31,7 +31,7 @@ bool
 game_load(game_t *game, FILE *out)
 {
     if (fread(game, sizeof(*game), 1, out) == 1) {
-        game->map = map_generate(game->seed);
+        game->map = map_generate(game->map_seed);
         if (fread(game->map->high, sizeof(game->map->high), 1, out) == 1)
             return true;
     }
