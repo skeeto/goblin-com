@@ -151,6 +151,16 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
         panel_puts(p, 9 + x, 21, font_totals, ">");
 }
 
+/* Sloppy, but it works! */
+static inline char *
+u8encode(uint16_t c)
+{
+    static int i = 0;
+    static char buf[8][7];
+    buf[i][utf32_to_8(c, (uint8_t *)buf[i % 8])] = '\0';
+    return buf[i++ % 8];
+}
+
 static uint16_t
 popup_build_select(game_t *game, panel_t *terrain)
 {
@@ -175,29 +185,32 @@ popup_build_select(game_t *game, panel_t *terrain)
     yield_string(yield, YIELD_LUMBERYARD, true);
     panel_printf(p,   1, y++, item, "(w) Lumberyard [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: forest (%c)", BASE_FOREST);
+    panel_printf(p, 5, y++, desc, "Target: forest (%s)",
+                 u8encode(BASE_FOREST));
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_FARM, false);
     yield_string(yield, YIELD_FARM, true);
     panel_printf(p, 1, y++, item, "(f) Farm [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: grassland (%c), forest (%c)",
-                 BASE_GRASSLAND, BASE_FOREST);
+    panel_printf(p, 5, y++, desc, "Target: grassland (%s), forest (%s)",
+                 u8encode(BASE_GRASSLAND), u8encode(BASE_FOREST));
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_STABLE, false);
     yield_string(yield, YIELD_STABLE, true);
     panel_printf(p, 1, y++, item, "(s) Stable [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: grassland (%c)", BASE_GRASSLAND);
+    panel_printf(p, 5, y++, desc, "Target: grassland (%s)",
+                 u8encode(BASE_GRASSLAND));
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_MINE, false);
     yield_string(yield, YIELD_MINE, true);
     panel_printf(p, 1, y++, item, "(m) Mine [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: hill (%c)", BASE_HILL);
+    panel_printf(p, 5, y++, desc, "Target: hill (%s)",
+                 u8encode(BASE_HILL));
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_HAMLET, false);
@@ -205,8 +218,10 @@ popup_build_select(game_t *game, panel_t *terrain)
     panel_printf(p, 1, y++, item, "(h) Hamlet [%s]", cost);
     panel_printf(p, 5, y++, desc, "Yield: %s", yield);
     panel_printf(p, 5, y++, desc,
-                 "Target: grassland (%c), forest (%c), hill (%c)",
-                 BASE_GRASSLAND, BASE_FOREST, BASE_HILL);
+                 "Target: grassland (%s), forest (%s), hill (%s)",
+                 u8encode(BASE_GRASSLAND),
+                 u8encode(BASE_FOREST),
+                 u8encode(BASE_HILL));
     panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_ROAD, false);
