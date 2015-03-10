@@ -1,3 +1,8 @@
+/**
+ * Platform layer. All of the platform specific calls, especially
+ * those for communicating with the terminal (the "device"), are
+ * captured behind this interface.
+ */
 #pragma once
 
 #include <stdint.h>
