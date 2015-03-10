@@ -69,8 +69,8 @@ device_cursor_get(int *x, int *y)
 void
 device_putc(font_t font, uint16_t c)
 {
-    uint8_t utf8[7] = {0};
-    utf32_to_8(c, utf8);
+    uint8_t utf8[7];
+    utf8[utf32_to_8(c, utf8)] = '\0';
     if (font_equal(device_font_last, font))
         fputs((char *)utf8, stdout);
     else
