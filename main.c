@@ -151,7 +151,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
         panel_puts(p, 9 + x, 21, font_totals, ">");
 }
 
-static char
+static uint16_t
 popup_build_select(game_t *game, panel_t *terrain)
 {
     int width = 56;
@@ -163,7 +163,7 @@ popup_build_select(game_t *game, panel_t *terrain)
     panel_border(&build, border);
 
     int input;
-    char result = 0;
+    uint16_t result = 0;
     panel_t *p = &build;
     font_t item = {COLOR_WHITE, COLOR_BLACK, true, false};
     font_t desc = {COLOR_WHITE, COLOR_BLACK, false, false};
@@ -378,7 +378,7 @@ main(void)
             int key = device_getch();
             switch (key) {
             case 'b': {
-                char building = popup_build_select(&game, &terrain);
+                uint16_t building = popup_build_select(&game, &terrain);
                 if (building) {
                     yield_t cost = building_cost(building);
                     if (!can_afford(&game, cost)) {

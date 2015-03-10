@@ -46,7 +46,7 @@ game_free(game_t *game)
 }
 
 bool
-game_build(game_t *game, enum building building, int x, int y)
+game_build(game_t *game, uint16_t building, int x, int y)
 {
     if (building == C_NONE) {
         /* Erase */
@@ -76,25 +76,28 @@ game_build(game_t *game, enum building building, int x, int y)
         case C_NONE:
         case C_CASTLE:
         case C_ROAD:
-            valid = strchr(" ~", base) == NULL;
+            valid = base != BASE_OCEAN && base != BASE_COAST;
             break;
         case C_LUMBERYARD:
-            valid = strchr("#", base) != NULL;
+            valid = base == BASE_FOREST;
             break;
         case C_STABLE:
-            valid = strchr(".", base) != NULL;
+            valid = base == BASE_GRASSLAND;
             break;
         case C_HAMLET:
-            valid = strchr(".#=", base) != NULL;
+            valid =
+                base == BASE_GRASSLAND ||
+                base == BASE_FOREST ||
+                base == BASE_HILL;
             if (valid)
                 game->population += 100;
             break;
         case C_MINE:
-            valid = strchr("=", base) != NULL;
+            valid = base == BASE_HILL;
             break;
             break;
         case C_FARM:
-            valid = strchr(".#", base) != NULL;
+            valid = base == BASE_GRASSLAND || base == BASE_FOREST;
             break;
         }
     }
@@ -137,7 +140,7 @@ yield_apply(game_t *game, yield_t yield)
 }
 
 static void
-building_process(game_t *game, enum building building)
+building_process(game_t *game, uint16_t building)
 {
     yield_t yield = {0, 0, 0};
     switch (building) {
@@ -200,7 +203,7 @@ game_step(game_t *game)
     } init = {game->gold, game->food, game->wood};
     for (int y = 0; y < MAP_HEIGHT; y++) {
         for (int x = 0; x < MAP_WIDTH; x++) {
-            enum building building = game->map->high[x][y].building;
+            uint16_t building = game->map->high[x][y].building;
             if (building != C_NONE) {
                 if (++game->map->high[x][y].building_age >= 0)
                     building_process(game, building);
@@ -217,7 +220,7 @@ game_step(game_t *game)
 }
 
 yield_t
-building_cost(enum building building)
+building_cost(uint16_t building)
 {
     switch (building) {
     case C_CASTLE:
@@ -241,7 +244,7 @@ building_cost(enum building building)
 }
 
 yield_t
-building_yield(enum building building)
+building_yield(uint16_t building)
 {
     switch (building) {
     case C_CASTLE:

@@ -32,8 +32,8 @@ typedef struct {
 #define COST_HAMLET     (yield_t){0, 0, 50}
 
 void yield_string(char *, yield_t, bool rate);
-yield_t building_cost(enum building);
-yield_t building_yield(enum building);
+yield_t building_cost(uint16_t);
+yield_t building_yield(uint16_t);
 
 typedef struct game {
     uint64_t seed;
@@ -51,6 +51,6 @@ bool game_save(game_t *game, FILE *out);
 bool game_load(game_t *game, FILE *out);
 void game_free(game_t *);
 
-bool    game_build(game_t *, enum building, int x, int y);
+bool    game_build(game_t *, uint16_t building, int x, int y);
 yield_t game_step(game_t *);
 void    game_date(game_t *, char *);

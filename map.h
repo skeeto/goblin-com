@@ -24,8 +24,8 @@ enum building {
 
 typedef struct map {
     struct {
-        enum map_base base;
-        enum building building;
+        uint16_t base;
+        uint16_t building;
         long building_age;
     } high[MAP_WIDTH][MAP_HEIGHT];
     struct {

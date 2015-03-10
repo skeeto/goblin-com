@@ -211,7 +211,7 @@ map_draw_terrain(map_t *map, panel_t *p)
 {
     for (size_t y = 0; y < MAP_HEIGHT; y++) {
         for (size_t x = 0; x < MAP_WIDTH; x++) {
-            char c = map->high[x][y].base;
+            uint16_t c = map->high[x][y].base;
             font_t font = base_font(c, x, y);
             panel_putc(p, x, y, font, c);
         }
@@ -225,7 +225,7 @@ map_draw_buildings(map_t *map, panel_t *p)
         for (size_t x = 0; x < MAP_WIDTH; x++) {
             enum building building = map->high[x][y].building;
             if (building != C_NONE) {
-                char c = building;
+                uint16_t c = building;
                 font_t font = (font_t){COLOR_YELLOW, COLOR_BLACK, true, false};
                 if (map->high[x][y].building_age < 0) {
                     font.fore = COLOR_CYAN;
