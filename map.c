@@ -163,8 +163,9 @@ base_font(enum map_base base, int x, int y)
     font_t font = FONT_DEFAULT;
     switch (base) {
     case BASE_OCEAN:
-        font.fore = COLOR_WHITE;
+        font.fore = COLOR_BLUE;
         font.back = COLOR_BLUE;
+        font.fore_bright = true;
         break;
     case BASE_COAST: {
         font.fore = COLOR_WHITE;
@@ -193,8 +194,8 @@ base_font(enum map_base base, int x, int y)
         break;
     case BASE_MOUNTAIN:
         font.fore = COLOR_WHITE;
-        font.back = COLOR_WHITE;
-        font.fore_bright = true;
+        font.back = COLOR_GREEN;
+        font.fore_bright = false;
         break;
     case BASE_SAND:
         font.fore = COLOR_YELLOW;

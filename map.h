@@ -6,8 +6,8 @@
 #define MAP_HEIGHT 24
 
 enum map_base {
-    BASE_OCEAN = ' ', BASE_COAST = '~', BASE_GRASSLAND = '.',
-    BASE_FOREST = '#', BASE_HILL = '=', BASE_MOUNTAIN = '^',
+    BASE_OCEAN = ' ', BASE_COAST = 0x2248, BASE_GRASSLAND = '.',
+    BASE_FOREST = 0x2663, BASE_HILL = 0x2229, BASE_MOUNTAIN = 0x25B2,
     BASE_SAND = ':'
 };
 
