@@ -47,3 +47,4 @@ bool     device_kbhit(uint64_t);
 uint64_t device_uepoch(void);
 void     device_title(const char *);
 void     device_size(int *, int *);
+void     device_entropy(void *, size_t);

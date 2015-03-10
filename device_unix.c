@@ -7,6 +7,7 @@
 #include <sys/select.h>
 #include <sys/ioctl.h>
 #include "device.h"
+#include "rand.h"
 #include "utf.h"
 
 #define FONT_INVALID {-1, -1, -1, -1};
@@ -143,4 +144,18 @@ device_size(int *width, int *height)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     *width = w.ws_col;
     *height = w.ws_row;
+}
+
+void
+device_entropy(void *buffer, size_t size)
+{
+    FILE *in = fopen("/dev/urandom", "r");
+    if (in == NULL || fread(buffer, size, 1, in) != 1) {
+        /* Fallback */
+        uint32_t pid = getpid();
+        uint64_t state = device_uepoch() ^ (pid < 32);
+        xorshift_fill(&state, buffer, size);
+    }
+    if (in)
+        fclose(in);
 }

@@ -2,6 +2,7 @@
 #include <conio.h>
 #include <stdio.h>
 #include "device.h"
+#include "rand.h"
 
 static HANDLE console_out;
 static HANDLE console_in;
@@ -204,4 +205,21 @@ device_size(int *width, int *height)
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     *width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     *height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+}
+
+void
+device_entropy(void *buffer, size_t size)
+{
+    HCRYPTPROV h = 0;
+    DWORD type = PROV_RSA_FULL;
+    DWORD flags = CRYPT_VERIFYCONTEXT | CRYPT_SILENT;
+    if (!CryptAcquireContext(&h, 0, 0, type, flags) ||
+        !CryptGenRandom(h, size, buffer)) {
+        /* Fallback */
+        uint32_t pid = GetProcessId(GetCurrentProcess());
+        uint64_t state = device_uepoch() ^ (pid < 32);
+        xorshift_fill(&state, buffer, size);
+    }
+    if (h)
+        CryptReleaseContext(h, 0);
 }
