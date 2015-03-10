@@ -4,22 +4,7 @@
 #include <ctype.h>
 #include <math.h>
 #include "map.h"
-
-static uint64_t
-xorshift(uint64_t *state) {
-    uint64_t x = *state;
-    x ^= x >> 12; // a
-    x ^= x << 25; // b
-    x ^= x >> 27; // c
-    *state = x;
-    return x * UINT64_C(2685821657736338717);
-}
-
-static double
-randf(uint64_t *state)
-{
-    return (xorshift(state) * 2.0) / UINT64_MAX - 1.0;
-}
+#include "rand.h"
 
 #define WORK_SIZE 4097
 #define NOISE_SCALE 4.0f
