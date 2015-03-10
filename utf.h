@@ -76,6 +76,8 @@ utf32_to_8(uint32_t utf32, uint8_t *utf8)
     return 0; /* invalid utf32 */
 }
 
+/* Note: this merely counts codepoints, which is not the same as
+ * visual length when rendered. */
 static inline size_t
 utf8_strlen(const uint8_t *utf8)
 {
