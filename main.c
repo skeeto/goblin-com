@@ -358,7 +358,9 @@ main(void)
         fclose(save);
         unlink(PERSIST_FILE);
     } else {
-        game_init(&game, device_uepoch());
+        uint64_t seed;
+        device_entropy(&seed, sizeof(seed));
+        game_init(&game, seed);
         game.speed = SPEED_FACTOR;
     }
     atexit_save_game = &game;
