@@ -322,6 +322,7 @@ main(void)
     if (w < DISPLAY_WIDTH || h < DISPLAY_HEIGHT) {
         printf("Goblin-COM requires a terminal of at least %dx%d characters!\n"
                "Press enter to exit ...", DISPLAY_WIDTH, DISPLAY_HEIGHT);
+        fflush(stdout);
         getchar();
         exit(EXIT_FAILURE);
     }
