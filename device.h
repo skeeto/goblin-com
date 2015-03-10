@@ -38,7 +38,7 @@ font_equal(font_t a, font_t b)
 void     device_init(void);
 void     device_free(void);
 void     device_move(int x, int y);
-void     device_cursor(bool show);
+void     device_cursor_show(bool show);
 bool     device_cursor_get(int *x, int *y);
 void     device_putc(font_t font, uint16_t c);
 void     device_flush(void);
@@ -46,5 +46,5 @@ int      device_getch(void);
 bool     device_kbhit(uint64_t);
 uint64_t device_uepoch(void);
 void     device_title(const char *);
-void     device_size(int *, int *);
+void     device_terminal_size(int *, int *);
 void     device_entropy(void *, size_t);

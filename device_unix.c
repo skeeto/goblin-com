@@ -35,7 +35,7 @@ void
 device_free(void)
 {
     tcsetattr(STDIN_FILENO, TCSANOW, &termios_orig);
-    device_cursor(true);
+    device_cursor_show(true);
     printf("\e[m\n");
 }
 
@@ -49,7 +49,7 @@ device_move(int x, int y)
 }
 
 void
-device_cursor(bool show)
+device_cursor_show(bool show)
 {
     if (cursor_visible != show)  {
         cursor_visible = show;
@@ -138,7 +138,7 @@ device_title(const char *title)
 }
 
 void
-device_size(int *width, int *height)
+device_terminal_size(int *width, int *height)
 {
     struct winsize w;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);

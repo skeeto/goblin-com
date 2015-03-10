@@ -31,7 +31,7 @@ device_move(int x, int y)
 }
 
 void
-device_cursor(bool show)
+device_cursor_show(bool show)
 {
     if (cursor_visible != show) {
         cursor_visible = show;
@@ -199,7 +199,7 @@ device_title(const char *title)
 }
 
 void
-device_size(int *width, int *height)
+device_terminal_size(int *width, int *height)
 {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
