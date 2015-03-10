@@ -1,7 +1,6 @@
 #include <windows.h>
 #include <conio.h>
 #include <stdio.h>
-#include <sys/time.h>
 #include "device.h"
 
 static HANDLE console_out;
@@ -178,12 +177,18 @@ device_kbhit(uint64_t useconds)
     return false;
 }
 
+/* http://stackoverflow.com/a/4568846 */
 uint64_t
 device_uepoch(void)
 {
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return 1000000LL * tv.tv_sec + tv.tv_usec;
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    uint64_t tt = ft.dwHighDateTime;
+    tt <<= 32;
+    tt |= ft.dwLowDateTime;
+    tt /=10;
+    tt -= UINT64_C(11644473600000000);
+    return tt;
 }
 
 void
