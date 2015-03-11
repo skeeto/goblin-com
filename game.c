@@ -127,7 +127,11 @@ game_date(game_t *game, char *buffer)
     long hour = time / HOUR;
     time -= hour * HOUR;
     long minute = time / MINUTE;
-    sprintf(buffer, "day %ld, %ld:%02ld", day, hour, minute);
+    char *ampm = hour < 12 ? "am" : "pm";
+    long hour12 = hour == 0 ? 12 : hour;
+    if (hour12 > 12)
+        hour12 -= 12;
+    sprintf(buffer, "Day %ld, %ld:%02ld%s", day, hour12, minute, ampm);
 }
 
 static void
