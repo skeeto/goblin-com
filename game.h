@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include "map.h"
 
+#define MINUTE (60.0)
+#define HOUR (60.0 * 60.0)
+#define DAY (24.0 * HOUR)
+
 #define INIT_GOLD         100
 #define INIT_WOOD         100
 #define INIT_FOOD         10
@@ -35,6 +39,19 @@ void yield_string(char *, yield_t, bool rate);
 yield_t building_cost(uint16_t);
 yield_t building_yield(uint16_t);
 
+#define INVADER_SPEED 10.0f
+#define INVADER_SPAWN_RATE 1
+
+enum invader_type {
+    I_GOBLIN = 'G'
+};
+
+typedef struct invader {
+    float x, y;    // position
+    float tx, ty;  // target
+    uint16_t type;
+} invader_t;
+
 typedef struct game {
     uint64_t map_seed;
     long time; // seconds
@@ -44,6 +61,9 @@ typedef struct game {
     double food;
     double population;
     map_t *map;
+    float spawn_rate; // per day
+    uint8_t invader_count;
+    invader_t invaders[16];
 } game_t;
 
 void game_init(game_t *, uint64_t map_seed);
@@ -54,3 +74,4 @@ void game_free(game_t *);
 bool    game_build(game_t *, uint16_t building, int x, int y);
 yield_t game_step(game_t *);
 void    game_date(game_t *, char *);
+void    game_draw_units(game_t *game, panel_t *p);

@@ -104,6 +104,8 @@ panel_init(panel_t *p, int x, int y, int w, int h)
     p->y = y;
     p->w = w;
     p->h = h;
+    assert(w <= DISPLAY_WIDTH);
+    assert(h <= DISPLAY_HEIGHT);
     for (int y = 0; y < DISPLAY_HEIGHT; y++)
         for (int x = 0; x < DISPLAY_WIDTH; x++)
             p->tiles[x][y].transparent = true;
@@ -131,7 +133,7 @@ panel_putc(panel_t *p, int x, int y, font_t font, uint16_t c)
 {
     x += p->x;
     y += p->y;
-    if (x >= 0 && x < DISPLAY_WIDTH && y >= 0 && y < DISPLAY_HEIGHT) {
+    if (x >= 0 && x < p->x + p->w && y >= 0 && y < p->y + p->h) {
         p->tiles[x][y].transparent = false;
         p->tiles[x][y].c = c;
         p->tiles[x][y].font = font;
@@ -216,6 +218,16 @@ void
 panel_erase(panel_t *p, int x, int y)
 {
     p->tiles[x][y].transparent = true;
+}
+
+void
+panel_clear(panel_t *p)
+{
+    for (int y = 0; y < p->h; y++) {
+        for (int x = 0; x < p->w; x++) {
+            p->tiles[x][y].transparent = true;
+        }
+    }
 }
 
 uint16_t

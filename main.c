@@ -353,6 +353,10 @@ main(void)
     panel_init(&buildings, 0, 0, MAP_WIDTH, MAP_HEIGHT);
     display_push(&buildings);
 
+    panel_t units;
+    panel_init(&units, 0, 0, MAP_WIDTH, MAP_HEIGHT);
+    display_push(&units);
+
     /* Main Loop */
     bool running = true;
     while (running) {
@@ -362,6 +366,8 @@ main(void)
         sidemenu_draw(&sidemenu, &game, diff);
         map_draw_terrain(game.map, &terrain);
         map_draw_buildings(game.map, &buildings);
+        panel_clear(&units);
+        game_draw_units(&game, &units);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
         if (device_kbhit(wait)) {
@@ -414,9 +420,11 @@ main(void)
     atexit_save_game = NULL;
     game_free(&game);
 
+    display_pop(); // units
     display_pop(); // buildings
     display_pop(); // terrain
     display_pop(); // sidemenu
+    panel_free(&units);
     panel_free(&buildings);
     panel_free(&terrain);
     panel_free(&sidemenu);

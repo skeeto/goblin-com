@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 
+#define countof(a) (sizeof(a) / sizeof(0[a]))
+
+#define PI 3.141592653589793
+
 extern uint64_t rand_state;
 
 uint64_t xorshift(uint64_t *state);

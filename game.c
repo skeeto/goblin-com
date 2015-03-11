@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "game.h"
+#include "rand.h"
 
 void
 game_init(game_t *game, uint64_t map_seed)
@@ -13,6 +15,7 @@ game_init(game_t *game, uint64_t map_seed)
     game->wood = INIT_WOOD;
     game->food = INIT_FOOD;
     game->population = INIT_POPULATION;
+    game->spawn_rate = INVADER_SPAWN_RATE;
     game->map = map_generate(map_seed);
     game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
 }
@@ -115,10 +118,6 @@ game_build(game_t *game, uint16_t building, int x, int y)
     return valid;
 }
 
-#define MINUTE (60.0)
-#define HOUR (60.0 * 60.0)
-#define DAY (24.0 * HOUR)
-
 void
 game_date(game_t *game, char *buffer)
 {
@@ -193,6 +192,46 @@ yield_string(char *b, yield_t yield, bool rate)
                        rate ? "/day" : "");
 }
 
+/* Invaders */
+
+static bool
+invader_push(game_t *game, invader_t invader)
+{
+    if (game->invader_count < countof(game->invaders)) {
+        game->invaders[game->invader_count++] = invader;
+        return true;
+    }
+    return false;
+}
+
+static invader_t
+invader_generate(void)
+{
+    float az = rand_uniform(0, 2 * PI);
+    invader_t invader = {
+        .type = I_GOBLIN,
+        .x = cosf(az) * MAP_WIDTH + MAP_WIDTH / 2,
+        .y = sinf(az) * MAP_HEIGHT + MAP_HEIGHT / 2
+    };
+    return invader;
+}
+
+static void
+invader_step(game_t *game, invader_t *i)
+{
+    if (i->tx == 0 || i->ty == 0) {
+        i->tx = MAP_WIDTH / 2;
+        i->ty = MAP_HEIGHT / 2;
+    }
+    float dx = i->tx - i->x;
+    float dy = i->ty - i->y;
+    float d = sqrt(dx * dx + dy * dy);
+    i->x += (INVADER_SPEED / (float)DAY) * dx / d;
+    i->y += (INVADER_SPEED / (float)DAY) * dy / d;
+    (void) game;
+}
+
+
 yield_t
 game_step(game_t *game)
 {
@@ -210,12 +249,18 @@ game_step(game_t *game)
             }
         }
     }
-    game->time++;
     yield_t diff = {
         .gold = (game->gold - init.gold) * DAY,
         .food = (game->food - init.food) * DAY,
         .wood = (game->wood - init.wood) * DAY
     };
+
+    if (rand_uniform(0, 1) < game->spawn_rate / DAY)
+        invader_push(game, invader_generate());
+    for (int i = 0; i < game->invader_count; i++)
+        invader_step(game, game->invaders + i);
+
+    game->time++;
     return diff;
 }
 
@@ -265,4 +310,14 @@ building_yield(uint16_t building)
         break;
     }
     return (yield_t){0, 0, 0};
+}
+
+void
+game_draw_units(game_t *game, panel_t *p)
+{
+    font_t font = {COLOR_RED, COLOR_BLACK, true, false};
+    for (int i = 0; i < game->invader_count; i++) {
+        invader_t *inv = game->invaders + i;
+        panel_putc(p, inv->x, inv->y, font, inv->type);
+    }
 }

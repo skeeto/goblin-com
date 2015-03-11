@@ -32,6 +32,7 @@ void     panel_puts(panel_t *, int x, int y, font_t, const char *);
 void     panel_printf(panel_t *, int x, int y, const char *format, ...);
 void     panel_attr(panel_t *, int x, int y, font_t);
 void     panel_erase(panel_t *, int x, int y);
+void     panel_clear(panel_t *);
 uint16_t panel_getc(panel_t *, int x, int y);
 void     panel_fill(panel_t *, font_t, uint16_t);
 void     panel_border(panel_t *, font_t);

@@ -159,7 +159,7 @@ base_font(enum map_base base, int x, int y)
         float dy = (y / (float)MAP_HEIGHT) - 0.5;
         dx *= 1.3;
         float dist = sqrt(dx * dx + dy * dy) * 100;
-        float offset = fmod(device_uepoch() / 500000.0, 3.141592653589793 * 2);
+        float offset = fmod(device_uepoch() / 500000.0, PI * 2);
         font.fore_bright = sinf(dist + offset) < 0 ? true : false;
     } break;
     case BASE_GRASSLAND:
