@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "display.h"
+#include "rand.h"
 #include "map.h"
 #include "game.h"
 #include "utf.h"
@@ -314,6 +315,7 @@ main(void)
         exit(EXIT_FAILURE);
     }
     printf("Initializing ...\n");
+    device_entropy(&rand_state, sizeof(rand_state));
     display_init();
     device_title("Goblin-COM");
 
@@ -330,9 +332,7 @@ main(void)
         fclose(save);
         unlink(PERSIST_FILE);
     } else {
-        uint64_t seed;
-        device_entropy(&seed, sizeof(seed));
-        game_init(&game, seed);
+        game_init(&game, xorshift(&rand_state));
         game.speed = SPEED_FACTOR;
     }
     atexit_save_game = &game;

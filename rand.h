@@ -2,11 +2,10 @@
 
 #include <stdint.h>
 
+extern uint64_t rand_state;
+
 uint64_t xorshift(uint64_t *state);
 void     xorshift_fill(uint64_t *state, void *, size_t);
 
-static inline double
-randf(uint64_t *state)
-{
-    return (xorshift(state) * 2.0) / UINT64_MAX - 1.0;
-}
+float rand_uniform_s(uint64_t *state, float min, float max);
+float rand_uniform(float min, float max);

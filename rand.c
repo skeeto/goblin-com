@@ -3,6 +3,8 @@
 
 #define MIN(x, y) ((y) < (x) ? (y) : (x))
 
+uint64_t rand_state = 0;
+
 uint64_t
 xorshift(uint64_t *state) {
     uint64_t x = *state;
@@ -24,4 +26,18 @@ xorshift_fill(uint64_t *state, void *buffer, size_t size)
         size -= amount;
         p += amount;
     }
+}
+
+float
+rand_uniform_s(uint64_t *state, float min, float max)
+{
+    float u = xorshift(state) / (double)UINT64_MAX;
+    return u * (max - min) + min;
+}
+
+float
+rand_uniform(float min, float max)
+{
+    return rand_uniform_s(&rand_state, min, max);
+
 }

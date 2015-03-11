@@ -33,8 +33,8 @@ grow(const float *map, size_t size, float *out, uint64_t *seed)
                     }
                 }
             }
-            out[y * osize + x] =
-                sum / count + randf(seed) / osize * NOISE_SCALE;
+            float u = rand_uniform_s(seed, -1, 1);
+            out[y * osize + x] = sum / count + u / osize * NOISE_SCALE;
         }
     }
     /* Square */
@@ -52,8 +52,8 @@ grow(const float *map, size_t size, float *out, uint64_t *seed)
                     count++;
                 }
             }
-            out[y * osize + x] = sum / count +
-                randf(seed) / osize  * NOISE_SCALE;
+            float u = rand_uniform_s(seed, -1, 1);
+            out[y * osize + x] = sum / count + u / osize  * NOISE_SCALE;
         }
     }
     return osize;
@@ -94,7 +94,7 @@ summarize(map_t *map, uint64_t *seed)
                 base = BASE_MOUNTAIN;
             else if (std > 0.04)
                 base = BASE_HILL;
-            else if (randf(seed) > -0.2)
+            else if (rand_uniform_s(seed, -1, 1) > -0.2)
                 base = BASE_GRASSLAND;
             else
                 base = BASE_FOREST;
@@ -113,7 +113,7 @@ map_generate(uint64_t seed)
     float *buf_b = calloc(alloc_size, 1);
     float *heightmap = buf_a;
     for (int i = 0; i < 4; i++)
-        heightmap[i] = randf(&seed);
+        heightmap[i] = rand_uniform_s(&seed, -1, 1);
     size_t size = 3;
     while (size < WORK_SIZE) {
         size = grow(buf_a, size, buf_b, &seed);
