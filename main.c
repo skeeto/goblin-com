@@ -120,7 +120,6 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
     int y = 8;
     panel_printf(p, x, y++, "wk{Create Rk{B}uilding}");
     panel_printf(p, x, y++, "wk{View Rk{H}eroes}");
-    panel_printf(p, x, y++, "wk{Show Rk{V}isibility}");
 
     char date[128];
     game_date(game, date);
