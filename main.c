@@ -263,8 +263,6 @@ static bool
 select_position(game_t *game, panel_t *world, int *x, int *y)
 {
     font_t highlight = {COLOR_WHITE, COLOR_RED, true, false};
-    *x = MAP_WIDTH / 2;
-    *y = MAP_HEIGHT / 2;
     bool selected = false;
     panel_t overlay;
     panel_init(&overlay, 0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -309,6 +307,28 @@ atexit_save(void)
 {
     if (atexit_save_game)
         persist(atexit_save_game);
+}
+
+static void
+ui_build(game_t *game, panel_t *terrain)
+{
+    uint16_t building;
+    while ((building = popup_build_select(game, terrain))) {
+        yield_t cost = building_cost(building);
+        if (!can_afford(game, cost)) {
+            popup_error("Not enough funding/materials!");
+        } else {
+            int x = MAP_WIDTH / 2;
+            int y = MAP_HEIGHT / 2;
+            while (select_position(game, terrain, &x, &y)) {
+                if (!game_build(game, building, x, y))
+                    popup_error("Invalid building location!");
+                else
+                    break;
+            }
+            break;
+        }
+    }
 }
 
 int
@@ -382,20 +402,9 @@ main(void)
         if (device_kbhit(wait)) {
             int key = device_getch();
             switch (key) {
-            case 'b': {
-                uint16_t building = popup_build_select(&game, &terrain);
-                if (building) {
-                    yield_t cost = building_cost(building);
-                    if (!can_afford(&game, cost)) {
-                        popup_error("Not enough funding/materials!");
-                    } else {
-                        int x, y;
-                        if (select_position(&game, &terrain, &x, &y))
-                            if (!game_build(&game, building, x, y))
-                                popup_error("Invalid building location!");
-                    }
-                }
-            } break;
+            case 'b':
+                ui_build(&game, &terrain);
+                break;
             case '>':
             case '.':
                 if (game.speed < SPEED_MAX)
