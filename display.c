@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include <assert.h>
 #include "display.h"
 #include "utf.h"
@@ -138,7 +139,7 @@ panel_putc(panel_t *p, int x, int y, font_t font, uint16_t c)
 }
 
 void
-panel_puts(panel_t *p, int x, int y, font_t font, char *s)
+panel_puts(panel_t *p, int x, int y, font_t font, const char *s)
 {
     for (uint8_t *s8 = (uint8_t *)s; *s8; s8 += utf8_charlen(*s8), x++) {
         uint32_t c = utf8_to_32(s8);
@@ -148,18 +149,56 @@ panel_puts(panel_t *p, int x, int y, font_t font, char *s)
 
 }
 
-void
-panel_printf(panel_t *p, int x, int y, font_t font, char *format, ...)
+static inline bool
+is_color_directive(const char *p)
 {
+    return p[0] && strchr("rgbcmykwRGBCMYKW", p[0]) &&
+           p[1] && strchr("rgbcmykwRGBCMYKW", p[1]) &&
+           p[2] == '{';
+}
+
+static inline font_t
+font_decode(const char *s)
+{
+    font_t font;
+    const char *colors = "krgybmcw";
+    font.fore = strchr(colors, tolower((int)s[0])) - colors;
+    font.back = strchr(colors, tolower((int)s[1])) - colors;
+    font.fore_bright = isupper((int)s[0]);
+    font.back_bright = isupper((int)s[1]);
+    return font;
+}
+
+void
+panel_printf(panel_t *p, int x, int y, const char *format, ...)
+{
+    int f = 0;
+    font_t font[16] = {FONT_DEFAULT};
+    char buffer[DISPLAY_WIDTH + 1];
     va_list ap;
     va_start(ap, format);
-    int length = vsnprintf(NULL, 0, format, ap);
+    vsnprintf(buffer, sizeof(buffer), format, ap);
     va_end(ap);
-    char buffer[length + 1];
-    va_start(ap, format);
-    vsprintf(buffer, format, ap);
-    va_end(ap);
-    panel_puts(p, x, y, font, buffer);
+    int nest = 0;
+    for (char *s = buffer; *s; s += utf8_charlen((uint8_t)*s)) {
+        if (is_color_directive(s)) {
+            font[++f] = font_decode(s);
+            s += 2;
+        } else if (*s == '}' && (nest > 0 || f > 0)) {
+            if (nest > 0) {
+                nest--;
+                panel_putc(p, x++, y, font[f], *s);
+            } else {
+                f--;
+            }
+        } else if (*s == '{') {
+            nest++;
+        } else {
+            uint32_t c = utf8_to_32((uint8_t *)s);
+            assert(c <= UINT16_MAX);
+            panel_putc(p, x++, y, font[f], c);
+        }
+    }
 }
 
 void

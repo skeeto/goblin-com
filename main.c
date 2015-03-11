@@ -16,8 +16,6 @@
 #define SPEED_FACTOR 5
 #define PERSIST_FILE "persist.gcom"
 
-#define FONT_KEY (font_t){COLOR_RED, COLOR_BLACK, true, false}
-
 static bool
 is_exit_key(int key)
 {
@@ -70,18 +68,12 @@ popup_quit(bool saving)
     panel_t popup;
     char *message;
     if (saving)
-        message = "Really save and quit? (y/n)";
+        message = "Really save and quit? (Rk{y}/Rk{n})";
     else
-        message = "Really quit without saving? (y/n)";
-    size_t length = strlen(message);
+        message = "Really quit Yk{without saving}? (Rk{y}/Rk{n})";
+    size_t length = strlen(message) - 8;
     panel_center_init(&popup, length + 2, 3);
-    panel_puts(&popup, 1, 1, FONT_DEFAULT, message);
-    panel_attr(&popup, length - 3, 1, FONT_KEY);
-    panel_attr(&popup, length - 1, 1, FONT_KEY);
-    font_t alert = {COLOR_YELLOW, COLOR_BLACK, true, false};
-    if (!saving)
-        for (int i = 0; i < 14; i++)
-            panel_attr(&popup, i + 13, 1, alert);
+    panel_printf(&popup, 1, 1, message);
     display_push(&popup);
     display_refresh();
     int input = device_getch();
@@ -115,37 +107,25 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 
     font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true, false};
     int ty = 3;
-    panel_printf(p, 2, ty++, font_totals, "Gold: %ld%+d",
+    panel_printf(p, 2, ty++, "Gold: %ldwk{%+d}",
                  (long)game->gold, (int)diff.gold);
-    panel_printf(p, 2, ty++, font_totals, "Food: %ld%+d",
+    panel_printf(p, 2, ty++, "Food: %ldwk{%+d}",
                  (long)game->food, (int)diff.food);
-    panel_printf(p, 2, ty++, font_totals, "Wood: %ld%+d",
+    panel_printf(p, 2, ty++, "Wood: %ldwk{%+d}",
                  (long)game->wood, (int)diff.wood);
-    panel_printf(p, 2, ty++, font_totals, "Pop.: %ld", (long)game->population);
-    for (int y = 3; y < 6; y++) {
-        bool seen = false;
-        for (int x = 7; x < p->w - 1; x++) {
-            if (strchr("+-", panel_getc(p, x, y)) != NULL)
-                seen = true;
-            if (seen)
-                panel_attr(p, x, y, font_title);
-        }
-    }
+    panel_printf(p, 2, ty++, "Pop.: %ld", (long)game->population);
 
-    font_t base = {COLOR_WHITE, COLOR_BLACK, false, false};
     int x = 2;
     int y = 8;
-    panel_puts(p, x,   y+0, base, "Create Building");
-    panel_attr(p, x+7, y+0, FONT_KEY);
-    panel_puts(p, x,   y+1, base, "View Heroes");
-    panel_attr(p, x+5, y+1, FONT_KEY);
-    panel_puts(p, x,   y+2, base, "Show Visibility");
-    panel_attr(p, x+5, y+2, FONT_KEY);
+    panel_printf(p, x, y++, "wk{Create Rk{B}uilding}");
+    panel_printf(p, x, y++, "wk{View Rk{H}eroes}");
+    panel_printf(p, x, y++, "wk{Show Rk{V}isibility}");
 
     char date[128];
     game_date(game, date);
     panel_puts(p, 2, 20, font_totals, date);
 
+    font_t base = {COLOR_WHITE, COLOR_BLACK, false, false};
     panel_puts(p, 2, 21, base, "Speed: ");
     for (int x = 0, i = 1; i <= game->speed; i *= SPEED_FACTOR, x++)
         panel_puts(p, 9 + x, 21, font_totals, ">");
@@ -175,61 +155,53 @@ popup_build_select(game_t *game, panel_t *terrain)
     int input;
     uint16_t result = 0;
     panel_t *p = &build;
-    font_t item = {COLOR_WHITE, COLOR_BLACK, true, false};
-    font_t desc = {COLOR_WHITE, COLOR_BLACK, false, false};
     char cost[128];
     char yield[128];
 
     int y = 1;
     yield_string(cost, COST_LUMBERYARD, false);
     yield_string(yield, YIELD_LUMBERYARD, true);
-    panel_printf(p,   1, y++, item, "(w) Lumberyard [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: forest (%s)",
+    panel_printf(p,   1, y++, "(Rk{w}) Yk{Lumberyard} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Target: forest (%s)}",
                  u8encode(BASE_FOREST));
-    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_FARM, false);
     yield_string(yield, YIELD_FARM, true);
-    panel_printf(p, 1, y++, item, "(f) Farm [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: grassland (%s), forest (%s)",
+    panel_printf(p, 1, y++, "(Rk{f}) Yk{Farm} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Target: grassland (%s), forest (%s)}",
                  u8encode(BASE_GRASSLAND), u8encode(BASE_FOREST));
-    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_STABLE, false);
     yield_string(yield, YIELD_STABLE, true);
-    panel_printf(p, 1, y++, item, "(s) Stable [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: grassland (%s)",
+    panel_printf(p, 1, y++, "(Rk{s}) Yk{Stable} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Target: grassland (%s)}",
                  u8encode(BASE_GRASSLAND));
-    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_MINE, false);
     yield_string(yield, YIELD_MINE, true);
-    panel_printf(p, 1, y++, item, "(m) Mine [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: hill (%s)",
+    panel_printf(p, 1, y++, "(Rk{m}) Yk{Mine} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Target: hill (%s)}",
                  u8encode(BASE_HILL));
-    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_HAMLET, false);
     yield_string(yield, YIELD_HAMLET, true);
-    panel_printf(p, 1, y++, item, "(h) Hamlet [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc,
-                 "Target: grassland (%s), forest (%s), hill (%s)",
+    panel_printf(p, 1, y++, "(Rk{h}) Yk{Hamlet} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++,
+                 "wk{Target: grassland (%s), forest (%s), hill (%s)}",
                  u8encode(BASE_GRASSLAND),
                  u8encode(BASE_FOREST),
                  u8encode(BASE_HILL));
-    panel_attr(p, 2, y - 3, FONT_KEY);
 
     yield_string(cost, COST_ROAD, false);
     yield_string(yield, YIELD_ROAD, true);
-    panel_printf(p, 1, y++, item, "(r) Road [%s]", cost);
-    panel_printf(p, 5, y++, desc, "Yield: %s", yield);
-    panel_printf(p, 5, y++, desc, "Target: (any land)");
-    panel_attr(p, 2, y - 3, FONT_KEY);
+    panel_printf(p, 1, y++, "(Rk{r}) Yk{Road} [%s]", cost);
+    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Target: (any land)}");
 
     while (result == 0 && !is_exit_key(input = game_getch(game, terrain)))
         if (strchr("wfshmr", input))
