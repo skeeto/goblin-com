@@ -108,18 +108,28 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 
     font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true, false};
     int ty = 3;
-    panel_printf(p, 2, ty++, "Gold: %ldwk{%+d}",
+    panel_printf(p, 2, ty++, "Gold: Yk{%ld}wk{%+d}",
                  (long)game->gold, (int)diff.gold);
-    panel_printf(p, 2, ty++, "Food: %ldwk{%+d}",
+    panel_printf(p, 2, ty++, "Food: Yk{%ld}wk{%+d}",
                  (long)game->food, (int)diff.food);
-    panel_printf(p, 2, ty++, "Wood: %ldwk{%+d}",
+    panel_printf(p, 2, ty++, "Wood: Yk{%ld}wk{%+d}",
                  (long)game->wood, (int)diff.wood);
     panel_printf(p, 2, ty++, "Pop.: %ld", (long)game->population);
 
     int x = 2;
     int y = 8;
     panel_printf(p, x, y++, "wk{Create Rk{B}uilding}");
-    panel_printf(p, x, y++, "wk{View Rk{H}eroes}");
+    panel_printf(p, x, y++, "wk{Rk{H}eroes}");
+
+
+    y = 12;
+    panel_printf(p, x, y++, "wk{Visibility:}");
+    panel_printf(p, x, y++, "wk{Toggle Rk{U}nits}");
+    panel_printf(p, x, y++, "wk{Toggle BuilRk{d}ings}");
+
+    y = 17;
+    panel_printf(p, x, y++, "wk{The Rk{S}tory}");
+    panel_printf(p, x, y++, "wk{Rk{H}elp Information}");
 
     char date[128];
     game_date(game, date);
