@@ -204,6 +204,13 @@ invader_push(game_t *game, invader_t invader)
     return false;
 }
 
+static void
+invader_delete(game_t *game, invader_t *i)
+{
+    *i = game->invaders[game->invader_count - 1];
+    game->invader_count--;
+}
+
 static invader_t
 invader_generate(void)
 {
@@ -211,26 +218,91 @@ invader_generate(void)
     invader_t invader = {
         .type = I_GOBLIN,
         .x = cosf(az) * MAP_WIDTH + MAP_WIDTH / 2,
-        .y = sinf(az) * MAP_HEIGHT + MAP_HEIGHT / 2
+        .y = sinf(az) * MAP_HEIGHT + MAP_HEIGHT / 2,
+        .embarked = true
     };
     return invader;
+}
+
+static inline uint16_t
+invader_base(game_t *game, invader_t *i)
+{
+    return map_base(game->map, i->x, i->y);
+}
+
+static inline uint16_t
+invader_building(game_t *game, invader_t *i)
+{
+    return map_building(game->map, i->x, i->y);
+}
+
+static void
+invader_find_target(game_t *game, invader_t *i)
+{
+    int ix = i->x;
+    int iy = i->y;
+    int best_x = ix + rand_uniform(-INVADER_VISION, INVADER_VISION);
+    int best_y = iy + rand_uniform(-INVADER_VISION, INVADER_VISION);
+    float best_d = INFINITY;
+    for (int y = -INVADER_VISION; y <= INVADER_VISION; y++) {
+        for (int x = -INVADER_VISION; x <= INVADER_VISION; x++) {
+            float xx = ix + x;
+            float yy = iy + y;
+            uint16_t building = map_building(game->map, xx, yy);
+            if (building != C_NONE) {
+                float d = xx * xx + yy * yy;
+                if (d < best_d) {
+                    best_x = xx;
+                    best_y = yy;
+                    best_d = d;
+                }
+            }
+        }
+    }
+    i->tx = best_x;
+    i->ty = best_y;
 }
 
 static void
 invader_step(game_t *game, invader_t *i)
 {
-    if (i->tx == 0 || i->ty == 0) {
-        i->tx = MAP_WIDTH / 2;
-        i->ty = MAP_HEIGHT / 2;
+    uint16_t base = invader_base(game, i);
+    uint16_t building = invader_building(game, i);
+    uint16_t target_base = map_base(game->map, i->tx, i->ty);
+    uint16_t target_building = map_building(game->map, i->tx, i->ty);
+    if (i->embarked) {
+        if (IS_WATER(base)) {
+            i->tx = MAP_WIDTH / 2;
+            i->ty = MAP_HEIGHT / 2;
+        } else {
+            i->embarked = false;
+            invader_find_target(game, i);
+        }
+    } else if (IS_WATER(target_base)) {
+        invader_find_target(game, i);
     }
-    float dx = i->tx - i->x;
-    float dy = i->ty - i->y;
-    float d = sqrt(dx * dx + dy * dy);
-    i->x += (INVADER_SPEED / (float)DAY) * dx / d;
-    i->y += (INVADER_SPEED / (float)DAY) * dy / d;
-    (void) game;
+    if (building != C_NONE) {
+        // TODO: Rampage
+        invader_delete(game, i);
+    } else {
+        /* Pursue */
+        float dx = i->tx - i->x;
+        float dy = i->ty - i->y;
+        float d = sqrt(dx * dx + dy * dy);
+        if (d < 0.1) {
+            if (target_building != C_NONE) {
+                i->x = i->tx;
+                i->y = i->ty;
+            } else {
+                invader_find_target(game, i);
+            }
+        } else {
+            i->x += (INVADER_SPEED / (float)DAY) * dx / d;
+            i->y += (INVADER_SPEED / (float)DAY) * dy / d;
+        }
+    }
+    i->embarked = IS_WATER(base);
 }
-
 
 yield_t
 game_step(game_t *game)
@@ -315,9 +387,10 @@ building_yield(uint16_t building)
 void
 game_draw_units(game_t *game, panel_t *p)
 {
-    font_t font = {COLOR_RED, COLOR_BLACK, true, false};
+    font_t land = {COLOR_RED, COLOR_BLACK, true, false};
+    font_t sea  = {COLOR_RED, COLOR_YELLOW, false, false};
     for (int i = 0; i < game->invader_count; i++) {
         invader_t *inv = game->invaders + i;
-        panel_putc(p, inv->x, inv->y, font, inv->type);
+        panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land, inv->type);
     }
 }

@@ -41,6 +41,7 @@ yield_t building_yield(uint16_t);
 
 #define INVADER_SPEED 10.0f
 #define INVADER_SPAWN_RATE 1
+#define INVADER_VISION 10
 
 enum invader_type {
     I_GOBLIN = 'G'
@@ -50,6 +51,7 @@ typedef struct invader {
     float x, y;    // position
     float tx, ty;  // target
     uint16_t type;
+    bool embarked;
 } invader_t;
 
 typedef struct game {

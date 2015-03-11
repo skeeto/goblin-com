@@ -222,3 +222,21 @@ map_draw_buildings(map_t *map, panel_t *p)
         }
     }
 }
+
+static inline bool
+is_valid_xy(int x, int y)
+{
+    return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+}
+
+uint16_t
+map_base(map_t *map, int x, int y)
+{
+    return is_valid_xy(x, y) ? map->high[x][y].base : BASE_OCEAN;
+}
+
+uint16_t
+map_building(map_t *map, int x, int y)
+{
+    return is_valid_xy(x, y) ? map->high[x][y].building : C_NONE;
+}
