@@ -136,11 +136,6 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
     panel_printf(p, x, y++, "Kk{♦}    wk{Rk{H}eroes}    Kk{♦}");
     panel_printf(p, x, y++, "Kk{♦}    wk{Rk{S}quads}    Kk{♦}");
 
-    y = 12;
-    panel_printf(p, x, y++, "   Kk{Show/Hide}    ");
-    panel_printf(p, x, y++, "Kk{♦}    wk{Rk{U}nits}     Kk{♦}");
-    panel_printf(p, x, y++, "Kk{♦}  wk{StruRk{c}tures}  Kk{♦}");
-
     y = 17;
     panel_printf(p, x, y++, "Kk{♦}    wk{SRk{t}ory}     Kk{♦}");
     panel_printf(p, x, y++, "Kk{♦}     wk{HelRk{p}}     Kk{♦}");
@@ -501,7 +496,7 @@ ui_story(game_t *game, panel_t *terrain)
         panel_printf(&story, 2, y, line);
         p = end + 1;
     }
-    while (!is_exit_key(game_getch(game, terrain)));
+    game_getch(game, terrain);
     display_pop_free();
 }
 
