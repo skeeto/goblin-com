@@ -97,4 +97,4 @@ void game_free(game_t *);
 bool    game_build(game_t *, uint16_t building, int x, int y);
 yield_t game_step(game_t *);
 void    game_date(game_t *, char *);
-void    game_draw_units(game_t *game, panel_t *p);
+void    game_draw_units(game_t *game, panel_t *p, bool id);

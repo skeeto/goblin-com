@@ -413,12 +413,13 @@ building_yield(uint16_t building)
 }
 
 void
-game_draw_units(game_t *game, panel_t *p)
+game_draw_units(game_t *game, panel_t *p, bool id)
 {
     font_t land = {COLOR_RED, COLOR_BLACK, true, false};
     font_t sea  = {COLOR_RED, COLOR_YELLOW, false, false};
-    for (unsigned i = 0; i < game->invader_count; i++) {
+    for (int i = 0; i < (int)game->invader_count; i++) {
         invader_t *inv = game->invaders + i;
-        panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land, inv->type);
+        panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land,
+                   id ? i + 'A' : inv->type);
     }
 }

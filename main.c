@@ -17,6 +17,8 @@
 #define SPEED_FACTOR 5
 #define PERSIST_FILE "persist.gcom"
 
+static const font_t font_error = {COLOR_YELLOW, COLOR_BLACK, true, false};
+
 static bool
 is_exit_key(int key)
 {
@@ -36,9 +38,8 @@ game_getch(game_t *game, panel_t *terrain)
 }
 
 static void
-popup_error(char *format, ...)
+popup_message(font_t font, char *format, ...)
 {
-    font_t font = {COLOR_YELLOW, COLOR_BLACK, true, false};
     va_list ap;
     va_start(ap, format);
     int length = vsnprintf(NULL, 0, format, ap);
@@ -90,7 +91,7 @@ static void
 popup_unknown_key(int key)
 {
 #ifndef NDEBUG
-    popup_error("Unknown input: %d", key);
+    popup_message(font_error, "Unknown input: %d", key);
 #else
     (void) key;
 #endif
@@ -316,13 +317,13 @@ ui_build(game_t *game, panel_t *terrain)
     while ((building = popup_build_select(game, terrain))) {
         yield_t cost = building_cost(building);
         if (!can_afford(game, cost)) {
-            popup_error("Not enough funding/materials!");
+            popup_message(font_error, "Not enough funding/materials!");
         } else {
             int x = MAP_WIDTH / 2;
             int y = MAP_HEIGHT / 2;
             while (select_position(game, terrain, &x, &y)) {
                 if (!game_build(game, building, x, y))
-                    popup_error("Invalid building location!");
+                    popup_message(font_error, "Invalid building location!");
                 else
                     break;
             }
@@ -331,31 +332,52 @@ ui_build(game_t *game, panel_t *terrain)
     }
 
 }
+
+static int
+select_target(game_t *game, panel_t *terrain, panel_t *units)
+{
+    int key = 0;
+    do {
+        if (key >= 'a' && key < 'a' + (int)game->invader_count)
+            return key - 'a';
+        game_draw_units(game, units, true);
+    } while (!is_exit_key(key = game_getch(game, terrain)));
+    return -1;
+}
+
 static void
-ui_squads(game_t *game, panel_t *terrain)
+ui_squads(game_t *game, panel_t *terrain, panel_t *units)
 {
     panel_t p;
     panel_center_init(&p, 29, countof(game->squads) + 3);
     panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
     panel_printf(&p, 1, 1, "wk{Squad Size Status}");
     display_push(&p);
-    for (unsigned i = 0; i < countof(game->squads); i++) {
-        squad_t *s = game->squads + i;
-        char status[32];
-        if (s->member_count == 0)
-            sprintf(status, "Kk{Empty}");
-        else if (s->target < 0)
-            sprintf(status, "Ck{Idle/Waiting}");
-        else
-            sprintf(status, "Rk{Intercepting %d}", s->target);
-        panel_printf(&p, 1, i + 2, "Yk{%-5c} %-4u %-16s",
-                     i + 'A', s->member_count, status);
-    }
-    game_getch(game, terrain);
+    int key = 0;
+    do {
+        if (key >= 'a' && key < 'a' + (int)countof(game->squads)) {
+            display_pop();
+            int target = select_target(game, terrain, units);;
+            game->squads[key - 'a'].target = target;
+            display_push(&p);
+            break;
+        }
+        for (unsigned i = 0; i < countof(game->squads); i++) {
+            squad_t *s = game->squads + i;
+            char status[32];
+            if (s->member_count == 0)
+                sprintf(status, "Kk{Empty}");
+            else if (s->target < 0)
+                sprintf(status, "Ck{Idle/Waiting}");
+            else
+                sprintf(status, "Rk{Intercepting %c}", s->target + 'A');
+            panel_printf(&p, 1, i + 2, "Yk{%-5c} %-4u %-16s",
+                         i + 'A', s->member_count, status);
+        }
+    } while (!is_exit_key(key = game_getch(game, terrain)));
     display_pop();
     panel_free(&p);
 }
-
 
 static void
 ui_heroes(game_t *game, panel_t *terrain)
@@ -500,7 +522,7 @@ main(void)
         map_draw_terrain(game.map, &terrain);
         map_draw_buildings(game.map, &buildings);
         panel_clear(&units);
-        game_draw_units(&game, &units);
+        game_draw_units(&game, &units, false);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
         if (device_kbhit(wait)) {
@@ -510,7 +532,7 @@ main(void)
                 ui_build(&game, &terrain);
                 break;
             case 's':
-                ui_squads(&game, &terrain);
+                ui_squads(&game, &terrain, &units);
                 break;
             case 'h':
                 ui_heroes(&game, &terrain);
