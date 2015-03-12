@@ -335,8 +335,9 @@ static void
 ui_squads(game_t *game, panel_t *terrain)
 {
     panel_t p;
-    panel_center_init(&p, 41, countof(game->squads) + 2);
+    panel_center_init(&p, 29, countof(game->squads) + 3);
     panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
+    panel_printf(&p, 1, 1, "wk{Squad Size Status}");
     display_push(&p);
     for (unsigned i = 0; i < countof(game->squads); i++) {
         squad_t *s = game->squads + i;
@@ -347,7 +348,7 @@ ui_squads(game_t *game, panel_t *terrain)
             sprintf(status, "Ck{Idle/Waiting}");
         else
             sprintf(status, "Rk{Intercepting %d}", s->target);
-        panel_printf(&p, 3, i + 1, "Squad Yk{%c}  %2u members  %-16s",
+        panel_printf(&p, 1, i + 2, "Yk{%-5c} %-4u %-16s",
                      i + 'A', s->member_count, status);
     }
     game_getch(game, terrain);
@@ -366,9 +367,10 @@ ui_heroes(game_t *game, panel_t *terrain)
     display_push(&p);
 
     int per_page = h - 3;
+    int total = countof(game->heroes);
+    int page_max = total / per_page;
     int page = 0;
     int selection = 0;
-    int total = countof(game->heroes);
     int key = 0;
     do {
         panel_fill(&p, FONT_DEFAULT, ' ');
@@ -385,8 +387,10 @@ ui_heroes(game_t *game, panel_t *terrain)
                 selection++;
             break;
         case '>':
-            page++;
-            selection = page * per_page;
+            if (page < page_max) {
+                page++;
+                selection = page * per_page;
+            }
             break;
         case '<':
             if (page > 0) {
