@@ -20,7 +20,7 @@
 static bool
 is_exit_key(int key)
 {
-    return key == 'q' || key == 27 || key == 3;
+    return key == 'Q' || key == 'q' || key == 27;
 }
 
 static int
@@ -120,7 +120,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
     int y = 8;
     panel_printf(p, x, y++, "wk{Create Rk{B}uilding}");
     panel_printf(p, x, y++, "wk{Rk{H}eroes}");
-
+    panel_printf(p, x, y++, "wk{Rk{S}quads}");
 
     y = 12;
     panel_printf(p, x, y++, "wk{Visibility:}");
@@ -128,7 +128,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
     panel_printf(p, x, y++, "wk{Toggle BuilRk{d}ings}");
 
     y = 17;
-    panel_printf(p, x, y++, "wk{The Rk{S}tory}");
+    panel_printf(p, x, y++, "wk{The SRk{t}ory}");
     panel_printf(p, x, y++, "wk{Rk{H}elp Information}");
 
     char date[128];
@@ -329,6 +329,103 @@ ui_build(game_t *game, panel_t *terrain)
             break;
         }
     }
+
+}
+static void
+ui_squads(game_t *game, panel_t *terrain)
+{
+    panel_t p;
+    panel_center_init(&p, 41, countof(game->squads) + 2);
+    panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
+    display_push(&p);
+    for (unsigned i = 0; i < countof(game->squads); i++) {
+        squad_t *s = game->squads + i;
+        char status[32];
+        if (s->member_count == 0)
+            sprintf(status, "Kk{Empty}");
+        else if (s->target < 0)
+            sprintf(status, "Ck{Idle/Waiting}");
+        else
+            sprintf(status, "Rk{Intercepting %d}", s->target);
+        panel_printf(&p, 3, i + 1, "Squad Yk{%-2u}  %2u members  %-16s",
+                     i + 1, s->member_count, status);
+    }
+    game_getch(game, terrain);
+    display_pop();
+    panel_free(&p);
+}
+
+
+static void
+ui_heroes(game_t *game, panel_t *terrain)
+{
+    panel_t p;
+    int w = 50;
+    int h = 22;
+    panel_center_init(&p, w, h);
+    display_push(&p);
+
+    int per_page = h - 3;
+    int page = 0;
+    int selection = 0;
+    int total = countof(game->heroes);
+    int key = 0;
+    do {
+        panel_fill(&p, FONT_DEFAULT, ' ');
+        panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
+        panel_printf(&p, 1, 1,
+                     "wk{Name             Squad   HP   AP  STR  DEX MIND}");
+        switch (key) {
+        case ARROW_U:
+            if (selection > 0)
+                selection--;
+            break;
+        case ARROW_D:
+            if (selection < (page + 1) * per_page - 1)
+                selection++;
+            break;
+        case '>':
+            page++;
+            selection = page * per_page;
+            break;
+        case '<':
+            if (page > 0) {
+                page--;
+                selection = page * per_page;
+            }
+            break;
+        case '+':
+        case '=':
+        case '-': {
+            hero_t *h = game->heroes + selection;
+            if (h->active) {
+                int new_squad = h->squad + (key == '-' ? -1 : 1);
+                if (new_squad >= 0 && new_squad < (int)countof(game->squads)) {
+                    game->squads[h->squad].member_count--;
+                    h->squad = new_squad;
+                    game->squads[h->squad].member_count++;
+                }
+            }
+        } break;
+        }
+        panel_printf(&p, 1, h - 1, "Rk{<} wk{Page %d} Rk{>}", page + 1);
+        for (int i = 0; i < per_page; i++) {
+            int si = page * per_page + i;
+            if (si > total)
+                break;
+            hero_t *h = game->heroes + si;
+            char format[] = "Ck{%-16s} Yk{%5d} %4d %4d %4d %4d %4d";
+            if (selection == si)
+                format[1] = 'r';
+            if (!h->active)
+                format[9] = '\0';
+            panel_printf(&p, 1, i + 2, format,
+                         h->name, h->squad + 1, h->hp_max, h->ap_max,
+                         h->str, h->dex, h->mind);
+        }
+    } while (!is_exit_key(key = game_getch(game, terrain)));
+    display_pop();
+    panel_free(&p);
 }
 
 int
@@ -404,6 +501,12 @@ main(void)
             switch (key) {
             case 'b':
                 ui_build(&game, &terrain);
+                break;
+            case 's':
+                ui_squads(&game, &terrain);
+                break;
+            case 'h':
+                ui_heroes(&game, &terrain);
                 break;
             case '>':
             case '.':

@@ -1,13 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string.h>
 #include <math.h>
 #include "game.h"
 #include "rand.h"
 
+static hero_t
+hero_generate(void)
+{
+    hero_t hero;
+    memset(&hero, 0, sizeof(hero));
+    hero.active = true;
+    rand_name(hero.name, sizeof(hero.name));
+    hero.hp = hero.hp_max = rand_range(10, 20);
+    hero.ap = hero.ap_max = rand_range(20, 40);
+    hero.str = rand_range(10, 18);
+    hero.dex = rand_range(10, 18);
+    hero.mind = rand_range(10, 18);
+    hero.squad = 0;
+    return hero;
+}
+
 void
 game_init(game_t *game, uint64_t map_seed)
 {
+    memset(game, 0, sizeof(*game));
     game->map_seed = map_seed;
     game->time = 0;
     game->speed = 1;
@@ -18,6 +36,12 @@ game_init(game_t *game, uint64_t map_seed)
     game->spawn_rate = INVADER_SPAWN_RATE;
     game->map = map_generate(map_seed);
     game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
+    game->max_hero = MAX_HERO_INIT;
+    for (int i = 0; i < (int)countof(game->squads); i++)
+        game->squads[i].target = -1;
+    for (int i = 0; i < HERO_INIT; i++)
+        game->heroes[i] = hero_generate();
+    game->squads[0].member_count = HERO_INIT;
 }
 
 bool
@@ -333,7 +357,7 @@ game_step(game_t *game)
 
     if (rand_uniform(0, 1) < game->spawn_rate / DAY)
         invader_push(game, invader_generate());
-    for (int i = 0; i < game->invader_count; i++)
+    for (unsigned i = 0; i < game->invader_count; i++)
         invader_step(game, game->invaders + i);
 
     game->time++;
@@ -393,7 +417,7 @@ game_draw_units(game_t *game, panel_t *p)
 {
     font_t land = {COLOR_RED, COLOR_BLACK, true, false};
     font_t sea  = {COLOR_RED, COLOR_YELLOW, false, false};
-    for (int i = 0; i < game->invader_count; i++) {
+    for (unsigned i = 0; i < game->invader_count; i++) {
         invader_t *inv = game->invaders + i;
         panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land, inv->type);
     }

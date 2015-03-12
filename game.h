@@ -43,6 +43,9 @@ yield_t building_yield(uint16_t);
 #define INVADER_SPAWN_RATE 1
 #define INVADER_VISION 10
 
+#define MAX_HERO_INIT 4
+#define HERO_INIT 2
+
 enum invader_type {
     I_GOBLIN = 'G'
 };
@@ -54,6 +57,21 @@ typedef struct invader {
     bool embarked;
 } invader_t;
 
+typedef struct squad {
+    float x, y;
+    int target;
+    unsigned member_count;
+} squad_t;
+
+typedef struct hero {
+    bool active;
+    char name[16];
+    int hp, hp_max;
+    int ap, ap_max;
+    int str, dex, mind;
+    int squad;
+} hero_t;
+
 typedef struct game {
     uint64_t map_seed;
     long time; // seconds
@@ -64,8 +82,11 @@ typedef struct game {
     double population;
     map_t *map;
     float spawn_rate; // per day
-    uint8_t invader_count;
+    unsigned invader_count;
     invader_t invaders[16];
+    squad_t squads[16];
+    int max_hero;
+    hero_t heroes[128];
 } game_t;
 
 void game_init(game_t *, uint64_t map_seed);
