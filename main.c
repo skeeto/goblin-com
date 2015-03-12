@@ -99,6 +99,21 @@ popup_unknown_key(int key)
 
 #define SIDEMENU_WIDTH (DISPLAY_WIDTH - MAP_WIDTH)
 
+static int
+sideinfo(panel_t *p, char *message)
+{
+    panel_init(p, DISPLAY_WIDTH - SIDEMENU_WIDTH, 0,
+               SIDEMENU_WIDTH, DISPLAY_HEIGHT);
+    display_push(p);
+    font_t plain = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
+    panel_fill(p, plain, 0x2591);
+    panel_border(p, plain);
+    int y = DISPLAY_HEIGHT / 2 - 1;
+    int x = p->w / 2 - panel_strlen(message) / 2 - 1;
+    panel_printf(p, x, y, message);
+    return y;
+}
+
 static void
 sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 {
@@ -263,6 +278,10 @@ arrow_adjust(int input, int *x, int *y)
 static bool
 select_position(game_t *game, panel_t *world, int *x, int *y)
 {
+    panel_t info;
+    int sidey = sideinfo(&info, "Yk{Select Location}");
+    panel_printf(&info, 6, sidey + 1, "Use Rk{←↑→↓}");
+
     font_t highlight = {COLOR_WHITE, COLOR_RED, true, false};
     bool selected = false;
     panel_t overlay;
@@ -277,8 +296,11 @@ select_position(game_t *game, panel_t *world, int *x, int *y)
         if (input == 13)
             selected = true;
     }
+
     display_pop();
     panel_free(&overlay);
+    display_pop();
+    panel_free(&info);
     return selected;
 }
 
@@ -336,13 +358,22 @@ ui_build(game_t *game, panel_t *terrain)
 static int
 select_target(game_t *game, panel_t *terrain, panel_t *units)
 {
+    panel_t info;
+    sideinfo(&info, "Yk{Select Target}");
+
     int key = 0;
+    int result = -1;
     do {
-        if (key >= 'a' && key < 'a' + (int)game->invader_count)
-            return key - 'a';
+        if (key >= 'a' && key < 'a' + (int)game->invader_count) {
+            result = key - 'a';
+            break;
+        }
         game_draw_units(game, units, true);
     } while (!is_exit_key(key = game_getch(game, terrain)));
-    return -1;
+
+    display_pop();
+    panel_free(&info);
+    return result;
 }
 
 static void

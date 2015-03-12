@@ -260,3 +260,16 @@ panel_border(panel_t *p, font_t font)
     panel_putc(p, 0,        p->h - 1, font, 0x2514);
     panel_putc(p, p->w - 1, p->h - 1, font, 0x2518);
 }
+
+size_t
+panel_strlen(const char *s)
+{
+    size_t count = 0;
+    for (const char *p = s; *p; p += utf8_charlen((uint8_t) *p)) {
+        if (is_color_directive(p))
+            p += 3;
+        else if (*p != '}')
+            count++;
+    }
+    return count;
+}

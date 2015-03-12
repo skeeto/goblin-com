@@ -37,3 +37,5 @@ void     panel_clear(panel_t *);
 uint16_t panel_getc(panel_t *, int x, int y);
 void     panel_fill(panel_t *, font_t, uint16_t);
 void     panel_border(panel_t *, font_t);
+
+size_t   panel_strlen(const char *);
