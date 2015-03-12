@@ -132,18 +132,18 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 
     int x = 2;
     int y = 8;
-    panel_printf(p, x, y++, "wk{Create Rk{B}uilding}");
-    panel_printf(p, x, y++, "wk{Rk{H}eroes}");
-    panel_printf(p, x, y++, "wk{Rk{S}quads}");
+    panel_printf(p, x, y++, "Kk{♦}    wk{Rk{B}uild}     Kk{♦}");
+    panel_printf(p, x, y++, "Kk{♦}    wk{Rk{H}eroes}    Kk{♦}");
+    panel_printf(p, x, y++, "Kk{♦}    wk{Rk{S}quads}    Kk{♦}");
 
     y = 12;
-    panel_printf(p, x, y++, "wk{Visibility:}");
-    panel_printf(p, x, y++, "wk{Toggle Rk{U}nits}");
-    panel_printf(p, x, y++, "wk{Toggle BuilRk{d}ings}");
+    panel_printf(p, x, y++, "   Kk{Show/Hide}    ");
+    panel_printf(p, x, y++, "Kk{♦}    wk{Rk{U}nits}     Kk{♦}");
+    panel_printf(p, x, y++, "Kk{♦}  wk{StruRk{c}tures}  Kk{♦}");
 
     y = 17;
-    panel_printf(p, x, y++, "wk{The SRk{t}ory}");
-    panel_printf(p, x, y++, "wk{Rk{H}elp Information}");
+    panel_printf(p, x, y++, "Kk{♦}    wk{SRk{t}ory}     Kk{♦}");
+    panel_printf(p, x, y++, "Kk{♦}     wk{HelRk{p}}     Kk{♦}");
 
     char date[128];
     game_date(game, date);
