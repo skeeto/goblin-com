@@ -475,7 +475,7 @@ ui_heroes(game_t *game, panel_t *terrain)
     display_pop_free();
 }
 
-extern const char _binary_story_txt_start[];
+extern const char _binary_doc_story_txt_start[];
 
 static void
 ui_story(game_t *game, panel_t *terrain)
@@ -486,7 +486,7 @@ ui_story(game_t *game, panel_t *terrain)
     panel_fill(&story, plain, ' ');
     panel_border(&story, plain);
     display_push(&story);
-    const char *p = _binary_story_txt_start;
+    const char *p = _binary_doc_story_txt_start;
     for (int y = 1; *p != '@'; y++) {
         const char *end = p;
         for (; *end != '\n'; end++);

@@ -1,11 +1,13 @@
 CFLAGS = -std=c99 -Wall -Wextra -g3 -O3
 LDLIBS = -lm
 
-gcom : main.c display.c map.c game.c rand.c story.o device_unix.c
+sources := main.c display.c map.c game.c rand.c device_unix.c
+
+gcom : doc/story.o $(addprefix src/,$(sources))
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :
-	$(RM) *.gcom gcom gcom.exe *.o
+	$(RM) persist.gcom gcom gcom.exe doc/*.o
 
 %.o : %.txt
 	$(LD) -r -b binary -o $@ $<
