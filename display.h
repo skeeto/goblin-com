@@ -29,7 +29,8 @@ void     panel_center_init(panel_t *, int w, int h);
 void     panel_free(panel_t *);
 void     panel_putc(panel_t *, int x, int y, font_t, uint16_t);
 void     panel_puts(panel_t *, int x, int y, font_t, const char *);
-void     panel_printf(panel_t *, int x, int y, const char *format, ...);
+void     panel_printf(panel_t *, int x, int y, const char *format, ...)
+    __attribute__ ((format (printf, 4, 5)));
 void     panel_attr(panel_t *, int x, int y, font_t);
 void     panel_erase(panel_t *, int x, int y);
 void     panel_clear(panel_t *);
