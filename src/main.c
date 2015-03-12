@@ -523,17 +523,18 @@ main(void)
     display_push(&loading);
     panel_puts(&loading, 0, 0, FONT_DEFAULT, (char *)loading_message);
     display_refresh();
-    game_t game;
+    game_t *game;
     FILE *save = fopen(PERSIST_FILE, "rb");
     if (save) {
-        game_load(&game, save);
+        game = game_load(save);
         fclose(save);
+        game->speed = SPEED_FACTOR;
         unlink(PERSIST_FILE);
     } else {
-        game_init(&game, xorshift(&rand_state));
-        game.speed = SPEED_FACTOR;
+        game = game_create(xorshift(&rand_state));
+        game->speed = SPEED_FACTOR;
     }
-    atexit_save_game = &game;
+    atexit_save_game = game;
     atexit(atexit_save);
     display_pop_free();
 
@@ -558,40 +559,40 @@ main(void)
     bool running = true;
     while (running) {
         yield_t diff;
-        for (int i = 0; i < game.speed; i++)
-            diff = game_step(&game);
-        sidemenu_draw(&sidemenu, &game, diff);
-        map_draw_terrain(game.map, &terrain);
-        map_draw_buildings(game.map, &buildings);
+        for (int i = 0; i < game->speed; i++)
+            diff = game_step(game);
+        sidemenu_draw(&sidemenu, game, diff);
+        map_draw_terrain(game->map, &terrain);
+        map_draw_buildings(game->map, &buildings);
         panel_clear(&units);
-        game_draw_units(&game, &units, false);
+        game_draw_units(game, &units, false);
         display_refresh();
         uint64_t wait = device_uepoch() % PERIOD;
         if (device_kbhit(wait)) {
             int key = device_getch();
             switch (key) {
             case 'b':
-                ui_build(&game, &terrain);
+                ui_build(game, &terrain);
                 break;
             case 's':
-                ui_squads(&game, &terrain, &units);
+                ui_squads(game, &terrain, &units);
                 break;
             case 'h':
-                ui_heroes(&game, &terrain);
+                ui_heroes(game, &terrain);
                 break;
             case 't':
-                ui_story(&game, &terrain);
+                ui_story(game, &terrain);
                 break;
             case '>':
             case '.':
-                if (game.speed < SPEED_MAX)
-                    game.speed *= SPEED_FACTOR;
+                if (game->speed < SPEED_MAX)
+                    game->speed *= SPEED_FACTOR;
                 break;
             case '<':
             case ',':
-                game.speed /= SPEED_FACTOR;
-                if (game.speed == 0)
-                    game.speed = 1;
+                game->speed /= SPEED_FACTOR;
+                if (game->speed == 0)
+                    game->speed = 1;
                 break;
             case 'R':
                 display_invalidate();
@@ -613,7 +614,7 @@ main(void)
 
     atexit_save();
     atexit_save_game = NULL;
-    game_free(&game);
+    game_free(game);
 
     display_pop(); // units
     display_pop(); // buildings

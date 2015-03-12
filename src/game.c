@@ -22,10 +22,10 @@ hero_generate(void)
     return hero;
 }
 
-void
-game_init(game_t *game, uint64_t map_seed)
+game_t *
+game_create(uint64_t map_seed)
 {
-    memset(game, 0, sizeof(*game));
+    game_t *game = calloc(sizeof(*game), 1);
     game->map_seed = map_seed;
     game->time = 0;
     game->speed = 1;
@@ -42,6 +42,7 @@ game_init(game_t *game, uint64_t map_seed)
     for (int i = 0; i < HERO_INIT; i++)
         game->heroes[i] = hero_generate();
     game->squads[0].member_count = HERO_INIT;
+    return game;
 }
 
 bool
@@ -54,22 +55,23 @@ game_save(game_t *game, FILE *out)
     return true;
 }
 
-bool
-game_load(game_t *game, FILE *out)
+game_t *
+game_load(FILE *out)
 {
+    game_t *game = malloc(sizeof(*game));
     if (fread(game, sizeof(*game), 1, out) == 1) {
         game->map = map_generate(game->map_seed);
         if (fread(game->map->high, sizeof(game->map->high), 1, out) == 1)
-            return true;
+            return game;
     }
-    return false;
+    return NULL;
 }
 
 void
 game_free(game_t *game)
 {
     map_free(game->map);
-    game->map = NULL;
+    free(game);
 }
 
 bool

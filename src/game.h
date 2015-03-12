@@ -89,10 +89,10 @@ typedef struct game {
     hero_t heroes[128];
 } game_t;
 
-void game_init(game_t *, uint64_t map_seed);
-bool game_save(game_t *game, FILE *out);
-bool game_load(game_t *game, FILE *out);
-void game_free(game_t *);
+game_t *game_create(uint64_t map_seed);
+bool    game_save(game_t *game, FILE *out);
+game_t *game_load(FILE *out);
+void    game_free(game_t *);
 
 bool    game_build(game_t *, uint16_t building, int x, int y);
 yield_t game_step(game_t *);
