@@ -347,8 +347,8 @@ ui_squads(game_t *game, panel_t *terrain)
             sprintf(status, "Ck{Idle/Waiting}");
         else
             sprintf(status, "Rk{Intercepting %d}", s->target);
-        panel_printf(&p, 3, i + 1, "Squad Yk{%-2u}  %2u members  %-16s",
-                     i + 1, s->member_count, status);
+        panel_printf(&p, 3, i + 1, "Squad Yk{%c}  %2u members  %-16s",
+                     i + 'A', s->member_count, status);
     }
     game_getch(game, terrain);
     display_pop();
@@ -414,13 +414,16 @@ ui_heroes(game_t *game, panel_t *terrain)
             if (si > total)
                 break;
             hero_t *h = game->heroes + si;
-            char format[] = "Ck{%-16s} Yk{%5d} %4d %4d %4d %4d %4d";
-            if (selection == si)
+            char format[] = "Ck{%-16s} Rk{ }Yk{%4c}Rk{ }%4d %4d %4d %4d %4d";
+            if (selection == si) {
                 format[1] = 'r';
+                format[13] = '-';
+                format[25] = '+';
+            }
             if (!h->active)
                 format[9] = '\0';
             panel_printf(&p, 1, i + 2, format,
-                         h->name, h->squad + 1, h->hp_max, h->ap_max,
+                         h->name, h->squad + 'A', h->hp_max, h->ap_max,
                          h->str, h->dex, h->mind);
         }
     } while (!is_exit_key(key = game_getch(game, terrain)));
