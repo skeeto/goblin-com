@@ -59,8 +59,7 @@ popup_message(font_t font, char *format, ...)
         if (is_exit_key(key) || key == 13 || key == ' ')
             break;
     }
-    display_pop();
-    panel_free(&popup);
+    display_pop_free();
     display_refresh();
 }
 
@@ -79,8 +78,7 @@ popup_quit(bool saving)
     display_push(&popup);
     display_refresh();
     int input = device_getch();
-    display_pop();
-    panel_free(&popup);
+    display_pop_free();
     display_refresh();
     if (input == 'y' || input == 'Y')
         return true;
@@ -234,8 +232,7 @@ popup_build_select(game_t *game, panel_t *terrain)
             result = toupper(input);
     if (result == 'R')
         result = '+';
-    display_pop();
-    panel_free(&build);
+    display_pop_free();
     return result;
 }
 
@@ -297,10 +294,8 @@ select_position(game_t *game, panel_t *world, int *x, int *y)
             selected = true;
     }
 
-    display_pop();
-    panel_free(&overlay);
-    display_pop();
-    panel_free(&info);
+    display_pop_free(); // overlay
+    display_pop_free(); // info
     return selected;
 }
 
@@ -371,8 +366,7 @@ select_target(game_t *game, panel_t *terrain, panel_t *units)
         game_draw_units(game, units, true);
     } while (!is_exit_key(key = game_getch(game, terrain)));
 
-    display_pop();
-    panel_free(&info);
+    display_pop_free();
     return result;
 }
 
@@ -406,8 +400,7 @@ ui_squads(game_t *game, panel_t *terrain, panel_t *units)
                          i + 'A', s->member_count, status);
         }
     } while (!is_exit_key(key = game_getch(game, terrain)));
-    display_pop();
-    panel_free(&p);
+    display_pop_free();
 }
 
 static void
@@ -484,8 +477,32 @@ ui_heroes(game_t *game, panel_t *terrain)
                          h->str, h->dex, h->mind);
         }
     } while (!is_exit_key(key = game_getch(game, terrain)));
-    display_pop();
-    panel_free(&p);
+    display_pop_free();
+}
+
+extern const char _binary_story_txt_start[];
+
+static void
+ui_story(game_t *game, panel_t *terrain)
+{
+    panel_t story;
+    panel_center_init(&story, 64, 21);
+    font_t plain = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
+    panel_fill(&story, plain, ' ');
+    panel_border(&story, plain);
+    display_push(&story);
+    const char *p = _binary_story_txt_start;
+    for (int y = 1; *p != '@'; y++) {
+        const char *end = p;
+        for (; *end != '\n'; end++);
+        char line[end - p + 1];
+        memcpy(line, p, end - p);
+        line[sizeof(line) - 1] = '\0';
+        panel_printf(&story, 2, y, line);
+        p = end + 1;
+    }
+    while (!is_exit_key(game_getch(game, terrain)));
+    display_pop_free();
 }
 
 int
@@ -523,8 +540,7 @@ main(void)
     }
     atexit_save_game = &game;
     atexit(atexit_save);
-    display_pop();
-    panel_free(&loading);
+    display_pop_free();
 
     panel_t sidemenu;
     panel_init(&sidemenu, DISPLAY_WIDTH - SIDEMENU_WIDTH, 0,
@@ -567,6 +583,9 @@ main(void)
                 break;
             case 'h':
                 ui_heroes(&game, &terrain);
+                break;
+            case 't':
+                ui_story(&game, &terrain);
                 break;
             case '>':
             case '.':

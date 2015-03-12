@@ -20,6 +20,7 @@ void display_init(void);
 void display_free(void);
 void display_push(panel_t *);
 void display_pop(void);
+void display_pop_free(void);
 void display_refresh(void);
 void display_invalidate(void);
 int  display_getch(void);

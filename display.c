@@ -55,6 +55,14 @@ display_pop(void)
 }
 
 void
+display_pop_free(void)
+{
+    panel_t *discard = display.panels;
+    display_pop();
+    panel_free(discard);
+}
+
+void
 display_refresh(void)
 {
     int cx = 0;
