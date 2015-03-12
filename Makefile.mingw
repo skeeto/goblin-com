@@ -1,11 +1,13 @@
-CC     = x86_64-w64-mingw32-gcc
-LD     = x86_64-w64-mingw32-ld
-CFLAGS = -std=c99 -Wall -Wextra -g3 -O3 -DNDEBUG
-LDLIBS = -lm
+HOST    = x86_64-w64-mingw32
+CC      = $(HOST)-gcc
+LD      = $(HOST)-ld
+WINDRES = $(HOST)-windres
+CFLAGS  = -std=c99 -Wall -Wextra -g3 -O3 -DNDEBUG
+LDLIBS  = -lm
 
 sources := main.c display.c map.c game.c rand.c device_mingw.c
 
-gcom.exe : doc/story.o $(addprefix src/,$(sources))
+gcom.exe : doc/story.o doc/gcom.o $(addprefix src/,$(sources))
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :
@@ -13,3 +15,6 @@ clean :
 
 %.o : %.txt
 	$(LD) -r -b binary -o $@ $<
+
+%.o : %.rc
+	$(WINDRES) -O coff -o $@ $<
