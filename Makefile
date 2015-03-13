@@ -3,7 +3,7 @@ LDLIBS = -lm
 
 sources := main.c display.c map.c game.c rand.c device_unix.c
 
-gcom : doc/story.o $(addprefix src/,$(sources))
+gcom : doc/story.o doc/help.o $(addprefix src/,$(sources))
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean :

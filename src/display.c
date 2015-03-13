@@ -184,7 +184,7 @@ panel_printf(panel_t *p, int x, int y, const char *format, ...)
 {
     int f = 0;
     font_t font[16] = {FONT_DEFAULT};
-    char buffer[DISPLAY_WIDTH + 1];
+    char buffer[DISPLAY_WIDTH * 6 + 1];
     va_list ap;
     va_start(ap, format);
     vsnprintf(buffer, sizeof(buffer), format, ap);

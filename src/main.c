@@ -567,6 +567,13 @@ ui_story(game_t *game, panel_t *terrain)
     text_page(game, terrain, _binary_doc_story_txt_start, 60, 19);
 }
 
+static void
+ui_help(game_t *game, panel_t *terrain)
+{
+    extern const char _binary_doc_help_txt_start[];
+    text_page(game, terrain, _binary_doc_help_txt_start, 60, 19);
+}
+
 int
 main(void)
 {
@@ -650,6 +657,9 @@ main(void)
                 break;
             case 't':
                 ui_story(game, &terrain);
+                break;
+            case 'p':
+                ui_help(game, &terrain);
                 break;
             case '>':
             case '.':

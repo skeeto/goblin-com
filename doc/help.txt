@@ -1,0 +1,49 @@
+├────────────────────── Gk{How to Play} ───────────────────────┤
+
+  Ck{Goblin-COM} is  influenced heavily  by X-COM:  UFO Defense,
+but rather than being set on  Earth in the distant future of
+1999,  it's set  in  a Tolkienesque  fantasy  world at  some
+undetermined date.
+
+├─────────────────────── Gk{Your Role} ────────────────────────┤
+
+  You  control  a number  of  Yk{heroes}  grouped together  into
+Yk{squads}.  As goblins  arrive, these  squads are  sent out  to
+intercept  the invaders  on the  geoscape screen.  Once your
+squad catches up with the  goblins, you'll be dropped into a
+battlescape to deal with them in turn-based combat.
+
+  On the geoscape screen you'll  also be able to construct a
+number of  different Yk{buildings}  to grow your  economic base.
+Buildings  must  always  be constructed  adjacent  to  other
+buildings. You  start with just  a single Yk{castle}  (Yk{C}), which
+provides  you a  base set  of Yk{resource}  income. You  must be
+careful  to  defend  your   buildings,  because  the  goblin
+invaders will destroy them!
+
+  The game ends when either your entire people are wiped out
+due  to your  castle being  heavily assaulted,  or when  you
+figure out how to resolve the story. Mk{Good luck!}
+
+├───────────────────── Gk{User Interface} ─────────────────────┤
+
+  Anything  marked with  Rk{red}  indicates a  key binding.  For
+example, you  should have pressed  Rk{p} to access  this window,
+and  the red  arrows  on  the right  margin  of this  window
+indicate scrolling.
+
+  In the  main geoscape view,  the Rk{<}  and Rk{>} keys  adjust the
+speed.  Different submenus  are accessed  by pressing  their
+displayed red key binding. Use Rk{q}  to save and quit, and Rk{Q} to
+quit without saving. Any menu can be exited using the Rk{escape}
+key or Rk{q}.
+
+  On the  heroes window use  the arrow  keys to move  up and
+down through  your available heroes.  Use < and >  to switch
+pages.  Use Rk{+}  and  Rk{-} to  adjust to  which  squad this  hero
+belongs.
+
+  On the squads window press  the squad's letter to select a
+new  target for  that squad.  Invaders will  be marked  with
+unique letters from which you can pick.
+@
