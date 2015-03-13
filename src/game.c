@@ -366,6 +366,8 @@ invader_step(game_t *game, invader_t *i)
             float speed = INVADER_SPEED;
             if (base == BASE_MOUNTAIN)
                 speed *= 0.5;
+            else if (IS_WATER(base))
+                speed *= 1.5;
             i->x += (speed / (float)DAY) * dx / d;
             i->y += (speed / (float)DAY) * dy / d;
         }
