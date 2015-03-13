@@ -10,7 +10,7 @@
 #include "rand.h"
 #include "utf.h"
 
-#define FONT_INVALID {-1, -1, -1, -1};
+#define FONT_INVALID {-1, -1, -1, -1}
 static font_t device_font_last = FONT_INVALID;
 static int cursor_x, cursor_y;
 struct termios termios_orig;
