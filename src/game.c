@@ -393,7 +393,7 @@ squad_step(game_t *game, squad_t *squad)
     float dx = tx - squad->x;
     float dy = ty - squad->y;
     float d = sqrt(dx * dx + dy * dy);
-    if (d < 0.1) {
+    if (d < 0.1 && !IS_WATER(map_base(game->map, tx, ty))) {
         squad->x = tx;
         squad->y = ty;
         if (squad->target >= 0) {
