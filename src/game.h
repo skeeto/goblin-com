@@ -51,7 +51,7 @@ yield_t building_yield(uint16_t);
 #define HERO_INIT 2
 
 enum invader_type {
-    I_GOBLIN = 'G'
+    I_GOBLIN = 'g'
 };
 
 typedef struct invader {
