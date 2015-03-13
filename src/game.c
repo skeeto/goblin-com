@@ -409,7 +409,7 @@ squad_step(game_t *game, squad_t *squad)
             speed *= 0.6;
         float newx = squad->x + (speed / (float)DAY) * dx / d;
         float newy = squad->y + (speed / (float)DAY) * dy / d;
-        if (!IS_WATER(map_base(game->map, newx, newy))) {
+        if (squad->target < 0 || !IS_WATER(map_base(game->map, newx, newy))) {
             squad->x = newx;
             squad->y = newy;
         }
