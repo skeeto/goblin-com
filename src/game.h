@@ -51,6 +51,7 @@ enum invader_type {
 };
 
 typedef struct invader {
+    bool active;
     float x, y;    // position
     float tx, ty;  // target
     uint16_t type;
@@ -82,7 +83,6 @@ typedef struct game {
     double population;
     map_t *map;
     float spawn_rate; // per day
-    unsigned invader_count;
     invader_t invaders[16];
     squad_t squads[16];
     int max_hero;

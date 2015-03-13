@@ -227,9 +227,11 @@ yield_string(char *b, yield_t yield, bool rate)
 static bool
 invader_push(game_t *game, invader_t invader)
 {
-    if (game->invader_count < countof(game->invaders)) {
-        game->invaders[game->invader_count++] = invader;
-        return true;
+    for (unsigned i = 0; i < countof(game->invaders); i++) {
+        if (!game->invaders[i].active) {
+            game->invaders[i] = invader;
+            return true;
+        }
     }
     return false;
 }
@@ -237,8 +239,8 @@ invader_push(game_t *game, invader_t invader)
 static void
 invader_delete(game_t *game, invader_t *i)
 {
-    *i = game->invaders[game->invader_count - 1];
-    game->invader_count--;
+    (void) game;
+    i->active = false;
 }
 
 static invader_t
@@ -246,6 +248,7 @@ invader_generate(void)
 {
     float az = rand_uniform(0, 2 * PI);
     invader_t invader = {
+        .active = true,
         .type = I_GOBLIN,
         .x = cosf(az) * MAP_WIDTH + MAP_WIDTH / 2,
         .y = sinf(az) * MAP_HEIGHT + MAP_HEIGHT / 2,
@@ -359,8 +362,9 @@ game_step(game_t *game)
 
     if (rand_uniform(0, 1) < game->spawn_rate / DAY)
         invader_push(game, invader_generate());
-    for (unsigned i = 0; i < game->invader_count; i++)
-        invader_step(game, game->invaders + i);
+    for (unsigned i = 0; i < countof(game->invaders); i++)
+        if (game->invaders[i].active)
+            invader_step(game, game->invaders + i);
 
     game->time++;
     return diff;
@@ -419,9 +423,10 @@ game_draw_units(game_t *game, panel_t *p, bool id)
 {
     font_t land = {COLOR_RED, COLOR_BLACK, true, false};
     font_t sea  = {COLOR_RED, COLOR_YELLOW, false, false};
-    for (int i = 0; i < (int)game->invader_count; i++) {
+    for (int i = 0; i < (int)countof(game->invaders); i++) {
         invader_t *inv = game->invaders + i;
-        panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land,
-                   id ? i + 'A' : inv->type);
+        if (inv->active)
+            panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land,
+                       id ? i + 'A' : inv->type);
     }
 }

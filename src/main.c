@@ -354,7 +354,7 @@ select_target(game_t *game, panel_t *terrain, panel_t *units)
     int key = 0;
     int result = -1;
     do {
-        if (key >= 'a' && key < 'a' + (int)game->invader_count) {
+        if (key >= 'a' && key < 'a' + (int)(countof(game->invaders))) {
             result = key - 'a';
             break;
         }
