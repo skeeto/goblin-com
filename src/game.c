@@ -115,6 +115,7 @@ game_build(game_t *game, uint16_t building, int x, int y)
             break;
         case C_STABLE:
             valid = base == BASE_GRASSLAND;
+            game->max_hero += STABLE_INC;
             break;
         case C_HAMLET:
             valid =
@@ -122,7 +123,7 @@ game_build(game_t *game, uint16_t building, int x, int y)
                 base == BASE_FOREST ||
                 base == BASE_HILL;
             if (valid)
-                game->population += 100;
+                game->population += HAMLET_INC;
             break;
         case C_MINE:
             valid = base == BASE_HILL;
@@ -145,6 +146,32 @@ game_build(game_t *game, uint16_t building, int x, int y)
             game->map->high[x][y].building_age = INIT_BUILDING_AGE;
     }
     return valid;
+}
+
+void
+game_unbuild(game_t *game, int x, int y)
+{
+    uint16_t building = map_building(game->map, x, y);
+    switch (building) {
+    case C_HAMLET:
+        game->population -= HAMLET_INC;
+        break;
+    case C_STABLE:
+        game->population -= STABLE_INC;
+        break;
+    case C_MINE:
+    case C_LUMBERYARD:
+    case C_ROAD:
+    case C_FARM:
+        /* Nothing special */
+        break;
+    case C_CASTLE:
+        game->population -= 50;
+        if (game->population < 0)
+            game->population = 0; // game over
+        return; // don't destroy
+    }
+    game->map->high[x][y].building = C_NONE;
 }
 
 void
@@ -318,10 +345,13 @@ invader_step(game_t *game, invader_t *i)
         invader_find_target(game, i);
     }
     if (building != C_NONE) {
-        // TODO: Rampage
-        invader_delete(game, i);
+        if (++i->rampage_time > INVADER_RAMPAGE_END) {
+            i->rampage_time = 0;
+            game_unbuild(game, i->x, i->y); // destroy
+        }
     } else {
         /* Pursue */
+        i->rampage_time = 0;
         float dx = i->tx - i->x;
         float dy = i->ty - i->y;
         float d = sqrt(dx * dx + dy * dy);

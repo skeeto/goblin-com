@@ -557,12 +557,13 @@ main(void)
 
     /* Main Loop */
     bool running = true;
-    while (running) {
+    while (running && game->population > 0) {
         yield_t diff;
         for (int i = 0; i < game->speed; i++)
             diff = game_step(game);
         sidemenu_draw(&sidemenu, game, diff);
         map_draw_terrain(game->map, &terrain);
+        panel_clear(&buildings);
         map_draw_buildings(game->map, &buildings);
         panel_clear(&units);
         game_draw_units(game, &units, false);
@@ -611,6 +612,12 @@ main(void)
             }
         }
     };
+
+    if (game->population <= 0) {
+        font_t font = {COLOR_BLACK, COLOR_RED, false, true};
+        popup_message(font, "Game Over");
+        atexit_save_game = NULL;
+    }
 
     atexit_save();
     atexit_save_game = NULL;

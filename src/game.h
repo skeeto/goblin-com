@@ -12,6 +12,8 @@
 #define INIT_FOOD         10
 #define INIT_POPULATION   250
 #define INIT_BUILDING_AGE (-60 * 60 * 24) // 1 day
+#define STABLE_INC        2
+#define HAMLET_INC        100
 
 typedef struct {
     int gold;
@@ -42,6 +44,7 @@ yield_t building_yield(uint16_t);
 #define INVADER_SPEED 10.0f
 #define INVADER_SPAWN_RATE 1
 #define INVADER_VISION 10
+#define INVADER_RAMPAGE_END DAY
 
 #define SQUAD_SPEED 15
 #define MAX_HERO_INIT 4
@@ -56,6 +59,7 @@ typedef struct invader {
     float x, y;    // position
     float tx, ty;  // target
     uint16_t type;
+    long rampage_time;
     bool embarked;
 } invader_t;
 
