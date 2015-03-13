@@ -145,16 +145,13 @@ map_free(map_t *map)
 static font_t
 base_font(enum map_base base, int x, int y)
 {
-    font_t font = FONT_DEFAULT;
+    font_t font;
     switch (base) {
     case BASE_OCEAN:
-        font.fore = COLOR_BLUE;
-        font.back = COLOR_BLUE;
-        font.fore_bright = true;
+        font = FONT(B, b);
         break;
     case BASE_COAST: {
-        font.fore = COLOR_WHITE;
-        font.back = COLOR_BLUE;
+        font = FONT(w, b);
         float dx = (x / (float)MAP_WIDTH) - 0.5;
         float dy = (y / (float)MAP_HEIGHT) - 0.5;
         dx *= 1.3;
@@ -163,30 +160,19 @@ base_font(enum map_base base, int x, int y)
         font.fore_bright = sinf(dist + offset) < 0 ? true : false;
     } break;
     case BASE_GRASSLAND:
-        font.fore = COLOR_GREEN;
-        font.back = COLOR_GREEN;
-        font.fore_bright = true;
+        font = FONT(G, g);
         break;
     case BASE_FOREST:
-        font.fore = COLOR_GREEN;
-        font.back = COLOR_GREEN;
-        font.fore_bright = true;
+        font = FONT(G, g);
         break;
     case BASE_HILL:
-        font.fore = COLOR_BLACK;
-        font.back = COLOR_GREEN;
-        font.fore_bright = true;
+        font = FONT(K, g);
         break;
     case BASE_MOUNTAIN:
-        font.fore = COLOR_WHITE;
-        font.back = COLOR_GREEN;
-        font.fore_bright = false;
+        font = FONT(w, g);
         break;
     case BASE_SAND:
-        font.fore = COLOR_YELLOW;
-        font.back = COLOR_YELLOW;
-        font.fore_bright = true;
-        font.back_bright = true;
+        font = FONT(Y, Y);
         break;
     }
     return font;
@@ -212,7 +198,7 @@ map_draw_buildings(map_t *map, panel_t *p)
             enum building building = map->high[x][y].building;
             if (building != C_NONE) {
                 uint16_t c = building;
-                font_t font = (font_t){COLOR_YELLOW, COLOR_BLACK, true, false};
+                font_t font = FONT(Y, k);
                 if (map->high[x][y].building_age < 0) {
                     font.fore = COLOR_CYAN;
                     c = tolower(c);

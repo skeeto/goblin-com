@@ -53,3 +53,29 @@ uint64_t device_uepoch(void);
 void     device_title(const char *);
 void     device_terminal_size(int *, int *);
 void     device_entropy(void *, size_t);
+
+/* Shorthand Font Literals */
+
+#define COLOR__FONT_R (0x10 | COLOR_RED)
+#define COLOR__FONT_G (0x10 | COLOR_GREEN)
+#define COLOR__FONT_B (0x10 | COLOR_BLUE)
+#define COLOR__FONT_C (0x10 | COLOR_CYAN)
+#define COLOR__FONT_M (0x10 | COLOR_MAGENTA)
+#define COLOR__FONT_Y (0x10 | COLOR_YELLOW)
+#define COLOR__FONT_K (0x10 | COLOR_BLACK)
+#define COLOR__FONT_W (0x10 | COLOR_WHITE)
+
+#define COLOR__FONT_r COLOR_RED
+#define COLOR__FONT_g COLOR_GREEN
+#define COLOR__FONT_b COLOR_BLUE
+#define COLOR__FONT_c COLOR_CYAN
+#define COLOR__FONT_m COLOR_MAGENTA
+#define COLOR__FONT_y COLOR_YELLOW
+#define COLOR__FONT_k COLOR_BLACK
+#define COLOR__FONT_w COLOR_WHITE
+
+#define FONT_STATIC(f, b)                               \
+    {COLOR__FONT_##f & 0x0F, COLOR__FONT_##b & 0xF,     \
+     COLOR__FONT_##f & 0x10, COLOR__FONT_##b & 0x10}
+
+#define FONT(f, b) ((font_t) FONT_STATIC(f, b))

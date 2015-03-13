@@ -17,7 +17,7 @@
 #define SPEED_FACTOR 5
 #define PERSIST_FILE "persist.gcom"
 
-static const font_t font_error = {COLOR_YELLOW, COLOR_BLACK, true, false};
+static const font_t font_error = FONT_STATIC(Y, k);
 
 static bool
 is_exit_key(int key)
@@ -103,9 +103,8 @@ sideinfo(panel_t *p, char *message)
     panel_init(p, DISPLAY_WIDTH - SIDEMENU_WIDTH, 0,
                SIDEMENU_WIDTH, DISPLAY_HEIGHT);
     display_push(p);
-    font_t plain = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
-    panel_fill(p, plain, 0x2591);
-    panel_border(p, plain);
+    panel_fill(p, FONT(K, k), 0x2591);
+    panel_border(p, FONT(K, k));
     int y = DISPLAY_HEIGHT / 2 - 1;
     int x = p->w / 2 - panel_strlen(message) / 2 - 1;
     panel_printf(p, x, y, message);
@@ -115,12 +114,12 @@ sideinfo(panel_t *p, char *message)
 static void
 sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
 {
-    font_t font_title = {COLOR_WHITE, COLOR_BLACK, false, false};
+    font_t font_title = FONT(w, k);
     panel_fill(p, font_title, ' ');
     panel_border(p, font_title);
     panel_puts(p, 5, 1, font_title, "Goblin-COM");
 
-    font_t font_totals = {COLOR_WHITE, COLOR_BLACK, true, false};
+    font_t font_totals = FONT(W, k);
     int ty = 3;
     panel_printf(p, 2, ty++, "Gold: Yk{%ld}wk{%+d}",
                  (long)game->gold, (int)diff.gold);
@@ -144,7 +143,7 @@ sidemenu_draw(panel_t *p, game_t *game, yield_t diff)
     game_date(game, date);
     panel_puts(p, 2, 20, font_totals, date);
 
-    font_t base = {COLOR_WHITE, COLOR_BLACK, false, false};
+    font_t base = FONT(w, k);
     panel_puts(p, 2, 21, base, "Speed: ");
     for (int x = 0, i = 1; i <= game->speed; i *= SPEED_FACTOR, x++)
         panel_puts(p, 9 + x, 21, font_totals, ">");
@@ -168,8 +167,7 @@ popup_build_select(game_t *game, panel_t *terrain)
     panel_t build;
     panel_center_init(&build, width, height);
     display_push(&build);
-    font_t border = {COLOR_WHITE, COLOR_BLACK, false, false};
-    panel_border(&build, border);
+    panel_border(&build, FONT(w, k));
 
     int input;
     uint16_t result = 0;
@@ -274,7 +272,7 @@ select_position(game_t *game, panel_t *world, int *x, int *y)
     int sidey = sideinfo(&info, "Yk{Select Location}");
     panel_printf(&info, 6, sidey + 1, "Use Rk{←↑→↓}");
 
-    font_t highlight = {COLOR_WHITE, COLOR_RED, true, false};
+    font_t highlight = FONT(W, r);
     bool selected = false;
     panel_t overlay;
     panel_init(&overlay, 0, 0, MAP_WIDTH, MAP_HEIGHT);
@@ -370,7 +368,7 @@ ui_squads(game_t *game, panel_t *terrain, panel_t *units)
 {
     panel_t p;
     panel_center_init(&p, 29, countof(game->squads) + 3);
-    panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
+    panel_border(&p, FONT(w, k));
     panel_printf(&p, 1, 1, "wk{Squad Size Status}");
     display_push(&p);
     int key = 0;
@@ -415,7 +413,7 @@ ui_heroes(game_t *game, panel_t *terrain)
     int key = 0;
     do {
         panel_fill(&p, FONT_DEFAULT, ' ');
-        panel_border(&p, (font_t){COLOR_WHITE, COLOR_BLACK, false, false});
+        panel_border(&p, FONT(w, k));
         panel_printf(&p, 1, 1,
                      "wk{Name             Squad   HP   AP  STR  DEX MIND}");
         switch (key) {
@@ -514,7 +512,7 @@ text_page(game_t *game, panel_t *terrain, const char *p, int w, int h)
     panel_t page;
     panel_center_init(&page, w + 4, h + 2);
     display_push(&page);
-    font_t border = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
+    font_t border = FONT(K, k);
     int numlines = text_numlines(p);
     int topline = 0;
     const char *top = p;
@@ -691,7 +689,7 @@ main(void)
     };
 
     if (game->population <= 0) {
-        font_t font = {COLOR_BLACK, COLOR_RED, false, true};
+        font_t font = FONT(k, R);
         popup_message(font, "Game Over");
         atexit_save_game = NULL;
     }
