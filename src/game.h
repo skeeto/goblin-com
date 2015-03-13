@@ -43,6 +43,7 @@ yield_t building_yield(uint16_t);
 #define INVADER_SPAWN_RATE 1
 #define INVADER_VISION 10
 
+#define SQUAD_SPEED 15
 #define MAX_HERO_INIT 4
 #define HERO_INIT 2
 

@@ -35,10 +35,13 @@ game_create(uint64_t map_seed)
     game->population = INIT_POPULATION;
     game->spawn_rate = INVADER_SPAWN_RATE;
     game->map = map_generate(map_seed);
-    game->map->high[MAP_WIDTH / 2][MAP_HEIGHT / 2].building = C_CASTLE;
+    game->map->high[CASTLE_X][CASTLE_Y].building = C_CASTLE;
     game->max_hero = MAX_HERO_INIT;
-    for (int i = 0; i < (int)countof(game->squads); i++)
+    for (int i = 0; i < (int)countof(game->squads); i++) {
+        game->squads[i].x = CASTLE_X;
+        game->squads[i].y = CASTLE_Y;
         game->squads[i].target = -1;
+    }
     for (int i = 0; i < HERO_INIT; i++)
         game->heroes[i] = hero_generate();
     game->squads[0].member_count = HERO_INIT;
@@ -250,8 +253,8 @@ invader_generate(void)
     invader_t invader = {
         .active = true,
         .type = I_GOBLIN,
-        .x = cosf(az) * MAP_WIDTH + MAP_WIDTH / 2,
-        .y = sinf(az) * MAP_HEIGHT + MAP_HEIGHT / 2,
+        .x = cosf(az) * MAP_WIDTH + CASTLE_X,
+        .y = sinf(az) * MAP_HEIGHT + CASTLE_Y,
         .embarked = true
     };
     return invader;
@@ -305,8 +308,8 @@ invader_step(game_t *game, invader_t *i)
     uint16_t target_building = map_building(game->map, i->tx, i->ty);
     if (i->embarked) {
         if (IS_WATER(base)) {
-            i->tx = MAP_WIDTH / 2;
-            i->ty = MAP_HEIGHT / 2;
+            i->tx = CASTLE_X;
+            i->ty = CASTLE_Y;
         } else {
             i->embarked = false;
             invader_find_target(game, i);
@@ -330,11 +333,55 @@ invader_step(game_t *game, invader_t *i)
                 invader_find_target(game, i);
             }
         } else {
-            i->x += (INVADER_SPEED / (float)DAY) * dx / d;
-            i->y += (INVADER_SPEED / (float)DAY) * dy / d;
+            float speed = INVADER_SPEED;
+            if (base == BASE_MOUNTAIN)
+                speed *= 0.5;
+            i->x += (speed / (float)DAY) * dx / d;
+            i->y += (speed / (float)DAY) * dy / d;
         }
     }
     i->embarked = IS_WATER(base);
+}
+
+void
+squad_step(game_t *game, squad_t *squad)
+{
+    float tx, ty;
+    if (squad->target < 0) {
+        tx = CASTLE_X;
+        ty = CASTLE_Y;
+    } else {
+        invader_t *i = game->invaders + squad->target;
+        if (!i->active) {
+            squad->target = -1;
+            tx = CASTLE_X;
+            ty = CASTLE_Y;
+        }
+        tx = i->x;
+        ty = i->y;
+    }
+    float dx = tx - squad->x;
+    float dy = ty - squad->y;
+    float d = sqrt(dx * dx + dy * dy);
+    if (d < 0.1) {
+        squad->x = tx;
+        squad->y = ty;
+        if (squad->target >= 0) {
+            // TODO: engage in battlescape!
+            invader_delete(game, game->invaders + squad->target);
+        }
+    } else {
+        float speed = SQUAD_SPEED;
+        if (map_base(game->map, squad->x, squad->y) == BASE_MOUNTAIN &&
+            map_building(game->map, squad->x, squad->y) == C_NONE)
+            speed *= 0.6;
+        float newx = squad->x + (speed / (float)DAY) * dx / d;
+        float newy = squad->y + (speed / (float)DAY) * dy / d;
+        if (!IS_WATER(map_base(game->map, newx, newy))) {
+            squad->x = newx;
+            squad->y = newy;
+        }
+    }
 }
 
 yield_t
@@ -359,6 +406,10 @@ game_step(game_t *game)
         .food = (game->food - init.food) * DAY,
         .wood = (game->wood - init.wood) * DAY
     };
+
+    for (unsigned i = 0; i < countof(game->squads); i++)
+        if (game->squads[i].member_count > 0)
+            squad_step(game, game->squads + i);
 
     if (rand_uniform(0, 1) < game->spawn_rate / DAY)
         invader_push(game, invader_generate());
@@ -428,5 +479,12 @@ game_draw_units(game_t *game, panel_t *p, bool id)
         if (inv->active)
             panel_putc(p, inv->x, inv->y, inv->embarked ? sea : land,
                        id ? i + 'A' : inv->type);
+    }
+    font_t squad = {COLOR_BLACK, COLOR_MAGENTA, false, true};
+    for (int i = 0; i < (int)countof(game->squads); i++) {
+        squad_t *s = game->squads + i;
+        if (s->member_count > 0 &&
+            !((int)s->x == CASTLE_X && (int)s->y == CASTLE_Y))
+            panel_putc(p, s->x, s->y, squad, i + 'A');
     }
 }

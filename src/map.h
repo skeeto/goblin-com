@@ -4,6 +4,8 @@
 
 #define MAP_WIDTH  60
 #define MAP_HEIGHT 24
+#define CASTLE_X (MAP_WIDTH / 2)
+#define CASTLE_Y (MAP_HEIGHT / 2)
 
 enum map_base {
     BASE_OCEAN = ' ',
