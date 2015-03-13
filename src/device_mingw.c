@@ -1,9 +1,11 @@
 #include <windows.h>
 #include <conio.h>
 #include <stdio.h>
-#include "device.h"
+#include "display.h"
 #include "rand.h"
+#include "device.h"
 
+static CHAR_INFO buffer[DISPLAY_HEIGHT][DISPLAY_WIDTH];
 static HANDLE console_out;
 static HANDLE console_in;
 static bool cursor_visible = true;
@@ -25,7 +27,6 @@ device_free(void)
 void
 device_move(int x, int y)
 {
-    SetConsoleCursorPosition(console_out, (COORD){x, y});
     cursor_x = x;
     cursor_y = y;
 }
@@ -114,15 +115,26 @@ device_putc(font_t font, uint16_t c)
         color |= FOREGROUND_INTENSITY;
     if (font.back_bright)
         color |= BACKGROUND_INTENSITY;
-    SetConsoleTextAttribute(console_out, color);
-    WriteConsoleW(console_out, &c, 1, NULL, NULL);
+    buffer[cursor_y][cursor_x].Char.UnicodeChar = c;
+    buffer[cursor_y][cursor_x].Attributes = color;
     cursor_x++;
 }
 
 void
 device_flush(void)
 {
-    /* Nothing */
+    COORD size = {
+        .X = DISPLAY_WIDTH,
+        .Y = DISPLAY_HEIGHT
+    };
+    COORD origin = {0, 0};
+    SMALL_RECT area = {
+        .Left = 0,
+        .Top = 0,
+        .Right = DISPLAY_WIDTH,
+        .Bottom = DISPLAY_HEIGHT,
+    };
+    WriteConsoleOutputW(console_out, buffer[0], size, origin, &area);
 }
 
 int
