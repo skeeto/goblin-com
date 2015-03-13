@@ -475,29 +475,96 @@ ui_heroes(game_t *game, panel_t *terrain)
     display_pop_free();
 }
 
-extern const char _binary_doc_story_txt_start[];
+static inline const char *
+text_next_line(const char *p)
+{
+    for (; *p != '\n'; p++);
+    return p + 1;
+}
+
+static inline const char *
+text_prev_line(const char *p)
+{
+    p -= 2;
+    for (; *p != '\n'; p--);
+    return p + 1;
+}
+
+static inline int
+text_numlines(const char *p)
+{
+    int count = 0;
+    for (; *p != '@'; p = text_next_line(p))
+        count++;
+    return count;
+}
+
+static inline int
+text_linelen(const char *p)
+{
+    int count = 0;
+    for (; *p != '\n'; p++)
+        count++;
+    return count;
+}
+
+static void
+text_page(game_t *game, panel_t *terrain, const char *p, int w, int h)
+{
+    panel_t page;
+    panel_center_init(&page, w + 4, h + 2);
+    display_push(&page);
+    font_t border = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
+    int numlines = text_numlines(p);
+    int topline = 0;
+    const char *top = p;
+
+    int key = 0;
+    do {
+        switch (key) {
+        case ARROW_D:
+            if (topline < numlines - h) {
+                topline++;
+                top = text_next_line(top);
+            }
+            break;
+        case ARROW_U:
+            if (topline > 1) {
+                topline--;
+                top = text_prev_line(top);
+            } else if (topline == 1) {
+                topline = 0;
+                top = p;
+            }
+            break;
+        }
+        panel_fill(&page, FONT_DEFAULT, ' ');
+        panel_border(&page, border);
+        if (numlines > h) {
+            panel_printf(&page, w + 3, 1, "Rk{↑}");
+            int o = (topline / (float)(numlines - h)) * (h - 3);
+            panel_printf(&page, w + 3, o + 2, "wk{o}");
+            panel_printf(&page, w + 3, h, "Rk{↓}");
+        }
+        const char *line = top;
+        for (int y = 0; y < h && topline + y < numlines; y++) {
+            int length = text_linelen(line);
+            char copy[length + 1];
+            memcpy(copy, line, length);
+            copy[length] = '\0';
+            panel_printf(&page, 2, y + 1, copy);
+            line = text_next_line(line);
+        }
+    } while (!is_exit_key(key = game_getch(game, terrain)));
+
+    display_pop_free();
+}
 
 static void
 ui_story(game_t *game, panel_t *terrain)
 {
-    panel_t story;
-    panel_center_init(&story, 64, 21);
-    font_t plain = (font_t){COLOR_BLACK, COLOR_BLACK, true, false};
-    panel_fill(&story, plain, ' ');
-    panel_border(&story, plain);
-    display_push(&story);
-    const char *p = _binary_doc_story_txt_start;
-    for (int y = 1; *p != '@'; y++) {
-        const char *end = p;
-        for (; *end != '\n'; end++);
-        char line[end - p + 1];
-        memcpy(line, p, end - p);
-        line[sizeof(line) - 1] = '\0';
-        panel_printf(&story, 2, y, line);
-        p = end + 1;
-    }
-    game_getch(game, terrain);
-    display_pop_free();
+    extern const char _binary_doc_story_txt_start[];
+    text_page(game, terrain, _binary_doc_story_txt_start, 60, 19);
 }
 
 int
