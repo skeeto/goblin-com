@@ -96,8 +96,8 @@ add_population(game_t *game, long amount)
 {
     long start_population = game->population;
     game->population += amount;
-    if (start_population < GAME_WIN_POP / 2 &&
-        game->population >= GAME_WIN_POP / 2) {
+    if (start_population < GAME_WIN_POP / 4 &&
+        game->population >= GAME_WIN_POP / 4) {
         game_event_push(game, EVENT_PROGRESS_1);
     }
     if (game->population <= 0)
