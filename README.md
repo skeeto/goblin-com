@@ -13,8 +13,8 @@ squad combat roguelike for 7DRL 2015.
 All needed resources are embedded in the executable, so there are no
 other files to zip up with it.
 
-* [gcom.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.0/gcom.exe) (64-bit)
-* [gcom32.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.0/gcom32.exe) (32-bit)
+* [gcom.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.1/gcom.exe) (64-bit)
+* [gcom32.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.1/gcom32.exe) (32-bit)
 
 ### Telnet
 
