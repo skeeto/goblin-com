@@ -1,11 +1,12 @@
                   The Origin of Ck{Goblin-COM}
 
-  You are  the king of  a fledgling, human island  nation. A
-few  months ago  while the  dungeons underneath  your castle
-were being expanded, something  interesting and terrible was
-unearthed. It was an ancient obsidian Yk{figurine} of a menacing
-Rk{goblin}. The mages  warned that it pulsed dark  energy like a
-beacon.
+  You  are the  ruler of  a fledgling,  young, human  island
+nation. A  few months ago,  a rogue illegally  exploring the
+dungeons   and  caves   underneath  your   castle  unearthed
+something  interesting  and  terrible.  It  was  an  ancient
+obsidian Yk{figurine}  of a  menacing Rk{goblin}. The  castle wizard
+warned  that  it pulsed  with  dark  energy like  a  beacon.
+Trouble would soon follow.
 
   Within  a matter  of  weeks, Rk{goblin}  raids  on the  island
 suddenly  increased.  Many  were  kiled.  The  Yk{figurine}  was
@@ -15,6 +16,6 @@ calling them.
 Unit was created. It was made  up of the greatest heroes the
 island had to offer. While Ck{Goblin-COM} fends off the goblins,
 you  must  figure  out  how  to  deal  with  the  mysterious
-figurine. Perhaps it  can be destroyed, but  the mages don't
+figurine. Perhaps it can be destroyed, but the wizards don't
 yet know how.
 @

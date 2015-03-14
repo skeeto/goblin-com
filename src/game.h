@@ -41,6 +41,12 @@ void yield_string(char *, yield_t, bool rate);
 yield_t building_cost(uint16_t);
 yield_t building_yield(uint16_t);
 
+#define GAME_WIN_POP 4000
+
+enum game_event {
+    EVENT_NONE, EVENT_LOSE, EVENT_WIN, EVENT_PROGRESS_1
+};
+
 #define INVADER_SPEED 10.0f
 #define INVADER_SPAWN_RATE 1
 #define INVADER_VISION 10
@@ -93,6 +99,7 @@ typedef struct game {
     squad_t squads[16];
     int max_hero;
     hero_t heroes[128];
+    enum game_event events[8];
 } game_t;
 
 game_t *game_create(uint64_t map_seed);
@@ -107,3 +114,5 @@ void    game_draw_units(game_t *game, panel_t *p, bool id);
 
 hero_t  game_hero_generate(void);
 bool    game_hero_push(game_t *game, hero_t hero);
+
+enum game_event game_event_pop(game_t *game);

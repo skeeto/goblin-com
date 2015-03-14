@@ -266,6 +266,31 @@ game_hero_push(game_t *game, hero_t hero)
     return false;
 }
 
+static bool
+game_event_push(game_t *game, enum game_event event)
+{
+    for (int i = 0; i < (int)countof(game->events); i++) {
+        if (game->events[i] == EVENT_NONE) {
+            game->events[i] = event;
+            return true;
+        }
+    }
+    return false;
+}
+
+enum game_event
+game_event_pop(game_t *game)
+{
+    for (int i = (int)countof(game->events) - 1; i >= 0; i--) {
+        if (game->events[i] != EVENT_NONE) {
+            enum game_event event = game->events[i];
+            game->events[i] = EVENT_NONE;
+            return event;
+        }
+    }
+    return EVENT_NONE;
+}
+
 /* Invaders */
 
 static bool
@@ -433,6 +458,7 @@ squad_step(game_t *game, squad_t *squad)
 yield_t
 game_step(game_t *game)
 {
+    long start_population = game->population;
     struct {
         double gold;
         double food;
@@ -462,6 +488,16 @@ game_step(game_t *game)
     for (unsigned i = 0; i < countof(game->invaders); i++)
         if (game->invaders[i].active)
             invader_step(game, game->invaders + i);
+
+    /* Generate events. */
+    if (start_population < GAME_WIN_POP / 2 &&
+        game->population >= GAME_WIN_POP / 2) {
+        game_event_push(game, EVENT_PROGRESS_1);
+    }
+    if (game->population <= 0)
+        game_event_push(game, EVENT_LOSE);
+    if (game->population >= GAME_WIN_POP)
+        game_event_push(game, EVENT_WIN);
 
     game->time++;
     return diff;

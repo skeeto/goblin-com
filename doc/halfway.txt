@@ -1,0 +1,52 @@
+  In the darkest part of the night you are awoken to banging
+on your chamber doors. You wearily slip out of bed to
+answer, slipping on your kingly Mk{purple robe}. Who would dare
+disturb the royal sleep, especially at this hour?
+
+  Behind the door you find the castle's head wizard, winded
+and sweating from racing up the winding stairs to your
+bedroom. The long beard certainly didn't help matters. He
+looked anxious to deliver important news, but was waiting
+patiently for your response.
+
+  "I hope this is important," you say with a yawn, refusing to
+budge from the doorway, lest the wizard try to push his way
+in.
+
+  "My  interruption  is  of   the  utmost  importance,  your
+majesty. It's the Yk{figurine}! I think I've discovered its true
+nature. We can put an end to this invasion."
+
+  "Go on." You  beckon the wizard into the room.  You take a
+seat  on the  side of  your bed  next to  the crumbled  silk
+sheets.
+
+  "The  Yk{figurine} was  created  millennia ago  by an  ancient
+human civilization. It's purpose  was not to attract Rk{goblins}
+towards something.  It was meant  to attract them  away from
+the  civilized  regions  of  the  world.  Unfortunately  our
+settlement just happened  to pick one of  the spots selected
+for one of these artifacts."
+
+  You interrupt, "How does this knowledge up us?"
+
+  "You didn't let  me finish, your majesty.  The creators of
+the  Yk{artifact} anticipated  our  dilemma.  The Yk{artifact}  will
+automatically  shut down  after a  certain number  of unique
+human individuals have touched it.  That way if the Yk{artifact}
+were to find its way to  a human civilization, it would shut
+down before causing its destruction."
+
+  "How many people will it take?"
+
+  "By  my estimates,  Mk{we'll need  4,000 people}.  If you  can
+build enough Ck{hamlets}  to attract 4,000 people  to live under
+your rule, I'll have the  Yk{figurine} sent around the realm for
+each man,  woman, and  child to  touch. If  I and  the other
+wizards  are  correct,  the   Rk{goblins}  will  instantly  lose
+interest in our island when the Yk{artifact} shuts down."
+
+  "Building  that sort  of infrastrucure  could take,  like,
+seven  days, but  I'll do  it. But  first, I  have sleep  to
+finish."
+@

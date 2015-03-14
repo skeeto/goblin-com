@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 #include <unistd.h>
 #include "display.h"
 #include "rand.h"
@@ -612,7 +613,7 @@ static void
 ui_story(game_t *game, panel_t *terrain)
 {
     extern const char _binary_doc_story_txt_start[];
-    text_page(game, terrain, _binary_doc_story_txt_start, 60, 19);
+    text_page(game, terrain, _binary_doc_story_txt_start, 60, 20);
 }
 
 static void
@@ -629,21 +630,30 @@ ui_gameover(game_t *game, panel_t *terrain)
     text_page(game, terrain, _binary_doc_game_over_txt_start, 60, 16);
 }
 
+static void
+ui_halfway(game_t *game, panel_t *terrain)
+{
+    extern const char _binary_doc_halfway_txt_start[];
+    text_page(game, terrain, _binary_doc_halfway_txt_start, 60, 16);
+}
+
 int
 main(void)
 {
     int w, h;
+    display_init();
     device_terminal_size(&w, &h);
     if (w < DISPLAY_WIDTH || h < DISPLAY_HEIGHT) {
+        display_free();
         printf("Goblin-COM requires a terminal of at least %dx%d characters!\n"
-               "Press enter to exit ...", DISPLAY_WIDTH, DISPLAY_HEIGHT);
+               "I see %dx%d\n"
+               "Press enter to exit ...\n",
+               DISPLAY_WIDTH, DISPLAY_HEIGHT, w, h);
         fflush(stdout);
         getchar();
         exit(EXIT_FAILURE);
     }
-    printf("Initializing ...\n");
     device_entropy(&rand_state, sizeof(rand_state));
-    display_init();
     device_title("Goblin-COM");
 
     panel_t loading;
@@ -686,10 +696,32 @@ main(void)
 
     /* Main Loop */
     bool running = true;
-    while (running && game->population > 0) {
+    while (running) {
         yield_t diff;
-        for (int i = 0; i < game->speed; i++)
+        for (int i = 0; running && i < game->speed; i++) {
             diff = game_step(game);
+            enum game_event event;
+            while ((event = game_event_pop(game)) != EVENT_NONE) {
+                sidemenu_draw(&sidemenu, game, diff);
+                display_refresh();
+                switch (event) {
+                case EVENT_LOSE:
+                    atexit_save_game = NULL;
+                running = false;
+                ui_gameover(game, &terrain);
+                break;
+                case EVENT_PROGRESS_1:
+                    ui_halfway(game, &terrain);
+                    break;
+                case EVENT_WIN:
+                    popup_message(FONT(Y,k), "YOU WIN");
+                    break;
+                case EVENT_NONE:
+                    break;
+                }
+            }
+        }
+
         sidemenu_draw(&sidemenu, game, diff);
         map_draw_terrain(game->map, &terrain);
         panel_clear(&buildings);
@@ -744,11 +776,6 @@ main(void)
             }
         }
     };
-
-    if (game->population <= 0) {
-        atexit_save_game = NULL;
-        ui_gameover(game, &terrain);
-    }
 
     atexit_save();
     atexit_save_game = NULL;
