@@ -1,0 +1,15 @@
+├───────────── Gk{An Apology from the Developer} ──────────────┤
+
+  There was  supposed to be  a battlescape thing  here where
+you fight the goblins in  turn-based battle, X-COM style. As
+usual  for 7DRL,  that  was  too ambitious  for  a one  week
+project, so it was cut. I'd  like to finish this part in the
+future, outside of 7DRL, so check  back some other time in a
+future version.
+
+  So sorry. Please  accept this automatic win  for this, and
+all future battles!
+
+  There's  still a  story, though,  so keep  playing. (Hint:
+Mk{keep growing your population} while fending off goblins.)
+@
