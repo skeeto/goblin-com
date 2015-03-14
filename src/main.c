@@ -11,10 +11,10 @@
 #include "game.h"
 #include "utf.h"
 
-#define FPS 30
+#define FPS 15
 #define PERIOD (1000000 / FPS)
-#define SPEED_MAX 3125
-#define SPEED_FACTOR 5
+#define SPEED_MAX 7776
+#define SPEED_FACTOR 6
 #define PERSIST_FILE "persist.gcom"
 
 static const font_t font_error = FONT_STATIC(Y, k);
