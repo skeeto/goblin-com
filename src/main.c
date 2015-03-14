@@ -640,7 +640,7 @@ ui_apology(game_t *game, panel_t *terrain)
 {
     extern const char _binary_doc_apology_txt_start[];
     if (!game->apology_given)
-        text_page(game, terrain, _binary_doc_apology_txt_start, 60, 11);
+        text_page(game, terrain, _binary_doc_apology_txt_start, 60, 14);
     game->apology_given = true;
 }
 
