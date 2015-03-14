@@ -44,7 +44,7 @@ yield_t building_yield(uint16_t);
 #define GAME_WIN_POP 4000
 
 enum game_event {
-    EVENT_NONE, EVENT_LOSE, EVENT_WIN, EVENT_PROGRESS_1
+    EVENT_NONE, EVENT_LOSE, EVENT_WIN, EVENT_PROGRESS_1, EVENT_BATTLE
 };
 
 #define INVADER_SPEED 10.0f

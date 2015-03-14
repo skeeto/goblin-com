@@ -438,7 +438,8 @@ squad_step(game_t *game, squad_t *squad)
         squad->x = tx;
         squad->y = ty;
         if (squad->target >= 0) {
-            // TODO: engage in battlescape!
+            game_event_push(game, EVENT_BATTLE);
+            // TODO
             invader_delete(game, game->invaders + squad->target);
         }
     } else {
