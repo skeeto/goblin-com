@@ -100,6 +100,7 @@ typedef struct game {
     int max_hero;
     hero_t heroes[128];
     enum game_event events[8];
+    bool apology_given;
 } game_t;
 
 game_t *game_create(uint64_t map_seed);

@@ -86,16 +86,6 @@ popup_quit(bool saving)
     return false;
 }
 
-static void
-popup_unknown_key(int key)
-{
-#ifndef NDEBUG
-    popup_message(font_error, "Unknown input: %d", key);
-#else
-    (void) key;
-#endif
-}
-
 #define SIDEMENU_WIDTH (DISPLAY_WIDTH - MAP_WIDTH)
 
 static int
@@ -645,6 +635,15 @@ ui_win(game_t *game, panel_t *terrain)
     text_page(game, terrain, _binary_doc_win_txt_start, 60, 16);
 }
 
+static void
+ui_apology(game_t *game, panel_t *terrain)
+{
+    extern const char _binary_doc_apology_txt_start[];
+    if (!game->apology_given)
+        text_page(game, terrain, _binary_doc_apology_txt_start, 60, 11);
+    game->apology_given = true;
+}
+
 int
 main(void)
 {
@@ -727,6 +726,7 @@ main(void)
                     ui_win(game, &terrain);
                     break;
                 case EVENT_BATTLE:
+                    ui_apology(game, &terrain);
                     break;
                 case EVENT_NONE:
                     break;
@@ -783,7 +783,6 @@ main(void)
                     atexit_save_game = NULL;
                 break;
             default:
-                popup_unknown_key(key);
                 break;
             }
         }
