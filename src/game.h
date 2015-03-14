@@ -21,7 +21,7 @@ typedef struct {
     int wood;
 } yield_t;
 
-#define YIELD_CASTLE     (yield_t){1, 1, 1}
+#define YIELD_CASTLE     (yield_t){2, 2, 2}
 #define YIELD_LUMBERYARD (yield_t){0, 0, 4}
 #define YIELD_FARM       (yield_t){0, 4, 0}
 #define YIELD_STABLE     (yield_t){0, -1, 4}
