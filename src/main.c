@@ -193,7 +193,8 @@ popup_build_select(game_t *game, panel_t *terrain)
     yield_string(cost, COST_STABLE, false);
     yield_string(yield, YIELD_STABLE, true);
     panel_printf(p, 1, y++, "(Rk{s}) Yk{Stable} [%s]", cost);
-    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Yield: %s}, gk{adds %d hero slots}",
+                 yield, STABLE_INC);
     panel_printf(p, 5, y++, "wk{Target: grassland (%s)}",
                  u8encode(BASE_GRASSLAND));
 
@@ -217,7 +218,8 @@ popup_build_select(game_t *game, panel_t *terrain)
     yield_string(cost, COST_ROAD, false);
     yield_string(yield, YIELD_ROAD, true);
     panel_printf(p, 1, y++, "(Rk{r}) Yk{Road} [%s]", cost);
-    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Yield: %s}, "
+                 "gk{removes movement penalties}", yield);
     panel_printf(p, 5, y++, "wk{Target: (any land)}");
 
     while (result == 0 && !is_exit_key(input = game_getch(game, terrain)))
