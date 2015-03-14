@@ -11,4 +11,4 @@ text.o : $(addprefix doc/,$(texts))
 	$(LD) -r -b binary -o $@ $^
 
 clean :
-	$(RM) persist.gcom gcom gcom.exe doc/*.o
+	$(RM) persist.gcom gcom gcom.exe text.o
