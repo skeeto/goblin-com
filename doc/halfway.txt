@@ -1,17 +1,17 @@
   In the darkest part of the night you are awoken to banging
-on your chamber doors. You wearily slip out of bed to
-answer, slipping on your kingly Mk{purple robe}. Who would dare
+on  your chamber  doors.  You  wearily slip  out  of bed  to
+answer, slipping on your kingly  Mk{purple robe}. Who would dare
 disturb the royal sleep, especially at this hour?
 
-  Behind the door you find the castle's head wizard, winded
-and sweating from racing up the winding stairs to your
-bedroom. The long beard certainly didn't help matters. He
-looked anxious to deliver important news, but was waiting
+  Behind the door you find  the castle's head wizard, winded
+and  sweating from  racing  up the  winding  stairs to  your
+bedroom. The  long beard  certainly didn't help  matters. He
+looked anxious  to deliver  important news, but  was waiting
 patiently for your response.
 
-  "I hope this is important," you say with a yawn, refusing to
-budge from the doorway, lest the wizard try to push his way
-in.
+  "I hope this is important,"  you say with a yawn, refusing
+to budge from  the doorway, lest the wizard try  to push his
+way in.
 
   "My  interruption  is  of   the  utmost  importance,  your
 majesty. It's the Yk{figurine}! I think I've discovered its true
