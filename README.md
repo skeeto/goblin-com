@@ -1,10 +1,36 @@
 # Goblin-COM
 
-![early screenshot](http://i.imgur.com/nz906Wc.gif)
+![](http://i.imgur.com/nz906Wc.gif)
 
 Operate the elite organization, Goblin-COM (Goblin Combat Unit), to
 protect your castle island from invading goblins. It's an XCOM-like
 squad combat roguelike for 7DRL 2015.
+
+## Download
+
+### Windows
+
+All needed resources are embedded in the executable, so there are no
+other files to zip up with it.
+
+* [gcom.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.0/gcom.exe) (64-bit)
+* [gcom32.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.0/gcom32.exe) (32-bit)
+
+### Telnet
+
+If you don't want to download anything, you can play over telnet using
+any ANSI+UTF-8 terminal emulator. (If it looks bad in PuTTY, [fix its
+configuration][putty].)
+
+    telnet gcom.nullprogram.com
+
+Saving is disabled in the telnet version, though.
+
+[putty]: http://thegreyblog.blogspot.com/2009/08/configuring-putty-to-use-utf-8.html
+
+### Other Platforms
+
+For all other platforms it should be easy to build from source.
 
 ## Implementation Details
 
