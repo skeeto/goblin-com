@@ -48,6 +48,7 @@ yield_t building_yield(uint16_t);
 
 #define SQUAD_SPEED 15
 #define MAX_HERO_INIT 4
+#define HERO_CANDIDATES 10
 #define HERO_INIT 2
 
 enum invader_type {
@@ -103,3 +104,6 @@ bool    game_build(game_t *, uint16_t building, int x, int y);
 yield_t game_step(game_t *);
 void    game_date(game_t *, char *);
 void    game_draw_units(game_t *game, panel_t *p, bool id);
+
+hero_t  game_hero_generate(void);
+bool    game_hero_push(game_t *game, hero_t hero);

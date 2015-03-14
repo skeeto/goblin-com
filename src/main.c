@@ -397,6 +397,37 @@ ui_squads(game_t *game, panel_t *terrain, panel_t *units)
 }
 
 static void
+ui_hire(game_t *game, panel_t *terrain, int slot)
+{
+    int w = 46;
+    int h = 14;
+    panel_t listing;
+    panel_center_init(&listing, w, h);
+    display_push(&listing);
+    panel_fill(&listing, FONT_DEFAULT, ' ');
+    panel_border(&listing, FONT(Y, k));
+    panel_printf(&listing, w / 2 - 7, 1, "yk{Hire New Hero}");
+    panel_printf(&listing, 1, 2,
+                 "wk{  Name               HP   AP  STR  DEX MIND}");
+    hero_t candidates[HERO_CANDIDATES];
+    for (unsigned i = 0; i < countof(candidates); i++) {
+        hero_t h = candidates[i] = game_hero_generate();
+        panel_printf(&listing, 1, i + 3,
+                     "Rk{%c} Ck{%-16s} %4d %4d %4d %4d %4d",
+                     'A' + i, h.name,
+                     h.hp_max, h.ap_max, h.str, h.dex, h.mind);
+    }
+    int key = 0;
+    while (!is_exit_key(key = game_getch(game, terrain))) {
+        if (key >= 'a' && key < 'a' + (int)countof(candidates)) {
+            game->heroes[slot] = candidates[key - 'a'];
+            break;
+        }
+    }
+    display_pop_free();
+}
+
+static void
 ui_heroes(game_t *game, panel_t *terrain)
 {
     panel_t p;
@@ -443,13 +474,20 @@ ui_heroes(game_t *game, panel_t *terrain)
             hero_t *h = game->heroes + selection;
             if (h->active) {
                 int new_squad = h->squad + (key == '-' ? -1 : 1);
-                if (new_squad >= 0 && new_squad < (int)countof(game->squads)) {
-                    game->squads[h->squad].member_count--;
+                if (new_squad >= -1 && new_squad < (int)countof(game->squads)) {
+                    if (h->squad >= 0)
+                        game->squads[h->squad].member_count--;
                     h->squad = new_squad;
-                    game->squads[h->squad].member_count++;
+                    if (h->squad >= 0)
+                        game->squads[h->squad].member_count++;
                 }
             }
         } break;
+        case 13: {
+            hero_t *h = game->heroes + selection;
+            if (!h->active && selection < game->max_hero)
+                ui_hire(game, terrain, selection);
+        }break;
         }
         panel_printf(&p, 1, h - 1, "Rk{<} wk{Page %d} Rk{>}", page + 1);
         for (int i = 0; i < per_page; i++) {
@@ -463,10 +501,20 @@ ui_heroes(game_t *game, panel_t *terrain)
                 format[13] = '-';
                 format[25] = '+';
             }
-            if (!h->active)
+            if (!h->active) {
+                format[0] = 'K';
                 format[9] = '\0';
+                if (si < game->max_hero) {
+                    strcpy(h->name, "(Rk{enter} to hire)");
+                    if (selection == si)
+                        h->name[2] = 'r';
+                } else {
+                    h->name[0] = '\0';
+                }
+            }
             panel_printf(&p, 1, i + 2, format,
-                         h->name, h->squad + 'A', h->hp_max, h->ap_max,
+                         h->name, h->squad < 0 ? ' ' : h->squad + 'A',
+                         h->hp_max, h->ap_max,
                          h->str, h->dex, h->mind);
         }
     } while (!is_exit_key(key = game_getch(game, terrain)));

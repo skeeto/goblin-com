@@ -6,8 +6,8 @@
 #include "game.h"
 #include "rand.h"
 
-static hero_t
-hero_generate(void)
+hero_t
+game_hero_generate(void)
 {
     hero_t hero;
     memset(&hero, 0, sizeof(hero));
@@ -18,7 +18,7 @@ hero_generate(void)
     hero.str = rand_range(10, 18);
     hero.dex = rand_range(10, 18);
     hero.mind = rand_range(10, 18);
-    hero.squad = 0;
+    hero.squad = -1;
     return hero;
 }
 
@@ -42,8 +42,10 @@ game_create(uint64_t map_seed)
         game->squads[i].y = CASTLE_Y;
         game->squads[i].target = -1;
     }
-    for (int i = 0; i < HERO_INIT; i++)
-        game->heroes[i] = hero_generate();
+    for (int i = 0; i < HERO_INIT; i++) {
+        game->heroes[i] = game_hero_generate();
+        game->heroes[i].squad = 0;
+    }
     game->squads[0].member_count = HERO_INIT;
     return game;
 }
@@ -250,6 +252,18 @@ yield_string(char *b, yield_t yield, bool rate)
                        count++ > 0 ? ", " : "",
                        yield.food,
                        rate ? "/day" : "");
+}
+
+bool
+game_hero_push(game_t *game, hero_t hero)
+{
+    for (int i = 0; i < game->max_hero; i++) {
+        if (!game->heroes[i].active) {
+            game->heroes[i] = hero;
+            return true;
+        }
+    }
+    return false;
 }
 
 /* Invaders */
