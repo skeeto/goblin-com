@@ -13,7 +13,7 @@
 #define INIT_POPULATION   250
 #define INIT_BUILDING_AGE (-60 * 60 * 24) // 1 day
 #define STABLE_INC        2
-#define HAMLET_INC        100
+#define HAMLET_INC        200
 
 typedef struct {
     int gold;
@@ -22,7 +22,7 @@ typedef struct {
 } yield_t;
 
 #define YIELD_CASTLE     (yield_t){2, 2, 2}
-#define YIELD_LUMBERYARD (yield_t){0, 0, 4}
+#define YIELD_LUMBERYARD (yield_t){0, 0, 6}
 #define YIELD_FARM       (yield_t){0, 4, 0}
 #define YIELD_STABLE     (yield_t){0, -2, 0}
 #define YIELD_MINE       (yield_t){4, 0, -1}
