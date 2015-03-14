@@ -32,7 +32,7 @@ typedef struct {
 #define COST_CASTLE     (yield_t){1000, 1000, 1000}
 #define COST_LUMBERYARD (yield_t){25, 0, 0}
 #define COST_FARM       (yield_t){0, 0, 20}
-#define COST_STABLE     (yield_t){100, 0, 100}
+#define COST_STABLE     (yield_t){70, 0, 70}
 #define COST_MINE       (yield_t){0, 0, 100}
 #define COST_ROAD       (yield_t){1, 0, 0}
 #define COST_HAMLET     (yield_t){0, 0, 30}
