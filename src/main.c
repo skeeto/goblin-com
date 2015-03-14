@@ -209,7 +209,8 @@ popup_build_select(game_t *game, panel_t *terrain)
     yield_string(cost, COST_HAMLET, false);
     yield_string(yield, YIELD_HAMLET, true);
     panel_printf(p, 1, y++, "(Rk{h}) Yk{Hamlet} [%s]", cost);
-    panel_printf(p, 5, y++, "wk{Yield: %s}", yield);
+    panel_printf(p, 5, y++, "wk{Yield: %s}, gk{adds %d pop.}", yield,
+                 HAMLET_INC);
     panel_printf(p, 5, y++,
                  "wk{Target: grassland (%s), forest (%s), hill (%s)}",
                  u8encode(BASE_GRASSLAND),
@@ -637,6 +638,13 @@ ui_halfway(game_t *game, panel_t *terrain)
     text_page(game, terrain, _binary_doc_halfway_txt_start, 60, 16);
 }
 
+static void
+ui_win(game_t *game, panel_t *terrain)
+{
+    extern const char _binary_doc_win_txt_start[];
+    text_page(game, terrain, _binary_doc_win_txt_start, 60, 16);
+}
+
 int
 main(void)
 {
@@ -707,14 +715,18 @@ main(void)
                 switch (event) {
                 case EVENT_LOSE:
                     atexit_save_game = NULL;
-                running = false;
-                ui_gameover(game, &terrain);
+                    running = false;
+                    ui_gameover(game, &terrain);
                 break;
                 case EVENT_PROGRESS_1:
                     ui_halfway(game, &terrain);
                     break;
                 case EVENT_WIN:
-                    popup_message(FONT(Y,k), "YOU WIN");
+                    atexit_save_game = NULL;
+                    running = false;
+                    ui_win(game, &terrain);
+                    break;
+                case EVENT_BATTLE:
                     break;
                 case EVENT_NONE:
                     break;
