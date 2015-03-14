@@ -181,10 +181,10 @@ game_unbuild(game_t *game, int x, int y)
     uint16_t building = map_building(game->map, x, y);
     switch (building) {
     case C_HAMLET:
-        game->population -= HAMLET_INC;
+        add_population(game, -HAMLET_INC);
         break;
     case C_STABLE:
-        game->population -= STABLE_INC;
+        game->max_hero -= STABLE_INC;
         break;
     case C_MINE:
     case C_LUMBERYARD:
@@ -193,9 +193,7 @@ game_unbuild(game_t *game, int x, int y)
         /* Nothing special */
         break;
     case C_CASTLE:
-        game->population -= 50;
-        if (game->population < 0)
-            game->population = 0; // game over
+        add_population(game, -50);
         return; // don't destroy
     }
     game->map->high[x][y].building = C_NONE;
