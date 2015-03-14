@@ -572,6 +572,13 @@ ui_help(game_t *game, panel_t *terrain)
     text_page(game, terrain, _binary_doc_help_txt_start, 60, 19);
 }
 
+static void
+ui_gameover(game_t *game, panel_t *terrain)
+{
+    extern const char _binary_doc_game_over_txt_start[];
+    text_page(game, terrain, _binary_doc_game_over_txt_start, 60, 16);
+}
+
 int
 main(void)
 {
@@ -689,9 +696,8 @@ main(void)
     };
 
     if (game->population <= 0) {
-        font_t font = FONT(k, R);
-        popup_message(font, "Game Over");
         atexit_save_game = NULL;
+        ui_gameover(game, &terrain);
     }
 
     atexit_save();
