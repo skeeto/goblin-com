@@ -22,10 +22,10 @@ typedef struct {
 } yield_t;
 
 #define YIELD_CASTLE     (yield_t){2, 2, 2}
-#define YIELD_LUMBERYARD (yield_t){0, 0, 6}
+#define YIELD_LUMBERYARD (yield_t){0, 0, 5}
 #define YIELD_FARM       (yield_t){0, 4, 0}
 #define YIELD_STABLE     (yield_t){0, -2, 0}
-#define YIELD_MINE       (yield_t){4, 0, -1}
+#define YIELD_MINE       (yield_t){5, 0, -1}
 #define YIELD_ROAD       (yield_t){-1, 0, 0}
 #define YIELD_HAMLET     (yield_t){2, -2, 0}
 
@@ -35,7 +35,7 @@ typedef struct {
 #define COST_STABLE     (yield_t){100, 0, 100}
 #define COST_MINE       (yield_t){0, 0, 100}
 #define COST_ROAD       (yield_t){1, 0, 0}
-#define COST_HAMLET     (yield_t){0, 0, 50}
+#define COST_HAMLET     (yield_t){0, 0, 30}
 
 void yield_string(char *, yield_t, bool rate);
 yield_t building_cost(uint16_t);
