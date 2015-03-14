@@ -6,6 +6,18 @@
 #include "game.h"
 #include "rand.h"
 
+static bool
+game_event_push(game_t *game, enum game_event event)
+{
+    for (int i = 0; i < (int)countof(game->events); i++) {
+        if (game->events[i] == EVENT_NONE) {
+            game->events[i] = event;
+            return true;
+        }
+    }
+    return false;
+}
+
 hero_t
 game_hero_generate(void)
 {
@@ -79,6 +91,19 @@ game_free(game_t *game)
     free(game);
 }
 
+static void
+add_population(game_t *game, long amount)
+{
+    long start_population = game->population;
+    game->population += amount;
+    if (start_population < GAME_WIN_POP / 2 &&
+        game->population >= GAME_WIN_POP / 2) {
+        game_event_push(game, EVENT_PROGRESS_1);
+    }
+    if (game->population <= 0)
+        game_event_push(game, EVENT_LOSE);
+}
+
 bool
 game_build(game_t *game, uint16_t building, int x, int y)
 {
@@ -125,7 +150,7 @@ game_build(game_t *game, uint16_t building, int x, int y)
                 base == BASE_FOREST ||
                 base == BASE_HILL;
             if (valid)
-                game->population += HAMLET_INC;
+                add_population(game, HAMLET_INC);
             break;
         case C_MINE:
             valid = base == BASE_HILL;
@@ -266,18 +291,6 @@ game_hero_push(game_t *game, hero_t hero)
     return false;
 }
 
-static bool
-game_event_push(game_t *game, enum game_event event)
-{
-    for (int i = 0; i < (int)countof(game->events); i++) {
-        if (game->events[i] == EVENT_NONE) {
-            game->events[i] = event;
-            return true;
-        }
-    }
-    return false;
-}
-
 enum game_event
 game_event_pop(game_t *game)
 {
@@ -372,7 +385,7 @@ invader_step(game_t *game, invader_t *i)
     uint16_t building = invader_building(game, i);
     uint16_t target_base = map_base(game->map, i->tx, i->ty);
     uint16_t target_building = map_building(game->map, i->tx, i->ty);
-    if (i->embarked) {
+    if (i->embarked || game->population >= GAME_WIN_POP) {
         if (IS_WATER(base)) {
             i->tx = CASTLE_X;
             i->ty = CASTLE_Y;
@@ -407,6 +420,8 @@ invader_step(game_t *game, invader_t *i)
                 speed *= 0.5;
             else if (IS_WATER(base))
                 speed *= 1.5;
+            if (game->population >= GAME_WIN_POP)
+                speed *= -1; // run away
             i->x += (speed / (float)DAY) * dx / d;
             i->y += (speed / (float)DAY) * dy / d;
         }
@@ -459,7 +474,6 @@ squad_step(game_t *game, squad_t *squad)
 yield_t
 game_step(game_t *game)
 {
-    long start_population = game->population;
     struct {
         double gold;
         double food;
@@ -491,12 +505,6 @@ game_step(game_t *game)
             invader_step(game, game->invaders + i);
 
     /* Generate events. */
-    if (start_population < GAME_WIN_POP / 2 &&
-        game->population >= GAME_WIN_POP / 2) {
-        game_event_push(game, EVENT_PROGRESS_1);
-    }
-    if (game->population <= 0)
-        game_event_push(game, EVENT_LOSE);
     if (game->population >= GAME_WIN_POP)
         game_event_push(game, EVENT_WIN);
 
