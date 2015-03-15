@@ -25,14 +25,12 @@ display_init(void)
         for (int x = 0; x < DISPLAY_WIDTH; x++)
             panel_putc(&display.base, x, y, FONT_DEFAULT, ' ');
     display.panels = &display.base;
-    device_cursor_show(false);
     display_refresh();
 }
 
 void
 display_free()
 {
-    device_cursor_show(true);
     device_move(0, DISPLAY_HEIGHT);
     panel_free(&display.base);
     device_free();

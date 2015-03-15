@@ -43,8 +43,7 @@ font_equal(font_t a, font_t b)
 void     device_init(void);
 void     device_free(void);
 void     device_move(int x, int y);
-void     device_cursor_show(bool show);
-bool     device_cursor_get(int *x, int *y);
+void     device_cursor_get(int *x, int *y);
 void     device_putc(font_t font, uint16_t c);
 void     device_flush(void);
 int      device_getch(void);

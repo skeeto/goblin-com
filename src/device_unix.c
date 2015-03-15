@@ -12,7 +12,6 @@
 
 #define FONT_INVALID {-1, -1, -1, -1};
 static font_t device_font_last = FONT_INVALID;
-static bool cursor_visible = true;
 static int cursor_x, cursor_y;
 struct termios termios_orig;
 
@@ -29,14 +28,14 @@ device_init(void)
     raw.c_cflag &= ~(CSIZE|PARENB);
     raw.c_cflag |= CS8;
     tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+    fputs("\e[?25h", stdout);
 }
 
 void
 device_free(void)
 {
     tcsetattr(STDIN_FILENO, TCSANOW, &termios_orig);
-    device_cursor_show(true);
-    printf("\e[m\n");
+    printf("\e[?25l\e[m\n");
 }
 
 void
@@ -49,22 +48,12 @@ device_move(int x, int y)
 }
 
 void
-device_cursor_show(bool show)
-{
-    if (cursor_visible != show)  {
-        cursor_visible = show;
-        printf("\e[?25%c", show ? 'h' : 'l');
-    }
-}
-
-bool
 device_cursor_get(int *x, int *y)
 {
     if (x)
         *x = cursor_x;
     if (y)
         *y = cursor_y;
-    return cursor_visible;
 }
 
 void

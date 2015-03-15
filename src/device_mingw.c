@@ -8,7 +8,6 @@
 static CHAR_INFO buffer[DISPLAY_HEIGHT][DISPLAY_WIDTH];
 static HANDLE console_out;
 static HANDLE console_in;
-static bool cursor_visible = true;
 static int cursor_x, cursor_y;
 
 void
@@ -16,12 +15,15 @@ device_init(void)
 {
     console_out = GetStdHandle(STD_OUTPUT_HANDLE);
     console_in = GetStdHandle(STD_INPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info = {100, false};
+    SetConsoleCursorInfo(console_out, &info);
 }
 
 void
 device_free(void)
 {
-    /* Nothing */
+    CONSOLE_CURSOR_INFO info = {100, true};
+    SetConsoleCursorInfo(console_out, &info);
 }
 
 void
@@ -32,23 +34,12 @@ device_move(int x, int y)
 }
 
 void
-device_cursor_show(bool show)
-{
-    if (cursor_visible != show) {
-        cursor_visible = show;
-        CONSOLE_CURSOR_INFO info = {100, show};
-        SetConsoleCursorInfo(console_out, &info);
-    }
-}
-
-bool
 device_cursor_get(int *x, int *y)
 {
     if (x)
         *x = cursor_x;
     if (y)
         *y = cursor_y;
-    return cursor_visible;
 }
 
 void
