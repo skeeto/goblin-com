@@ -8,14 +8,14 @@ LDLIBS  = -lm
 sources := main.c display.c map.c game.c rand.c device_mingw.c
 texts   := story.txt help.txt game-over.txt halfway.txt win.txt apology.txt
 
-gcom.exe : doc/gcom.o text.o $(addprefix src/,$(sources))
+gcom.exe : doc/gcom.o text-mingw.o $(addprefix src/,$(sources))
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-text.o : $(addprefix doc/,$(texts))
+text-mingw.o : $(addprefix doc/,$(texts))
 	$(LD) -r -b binary -o $@ $^
 
 clean :
-	$(RM) persist.gcom gcom gcom.exe text.o doc/gcom.o
+	$(RM) persist.gcom gcom gcom.exe text-mingw.o doc/gcom.o
 
 %.o : %.rc
 	$(WINDRES) -O coff -o $@ $<
