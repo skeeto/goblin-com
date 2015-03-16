@@ -28,14 +28,14 @@ device_init(void)
     raw.c_cflag &= ~(CSIZE|PARENB);
     raw.c_cflag |= CS8;
     tcsetattr(STDIN_FILENO, TCSANOW, &raw);
-    fputs("\e[?25h", stdout);
+    fputs("\e[?25l", stdout);
 }
 
 void
 device_free(void)
 {
     tcsetattr(STDIN_FILENO, TCSANOW, &termios_orig);
-    printf("\e[?25l\e[m\n");
+    printf("\e[?25h\e[m\n");
 }
 
 void
