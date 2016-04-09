@@ -16,18 +16,6 @@ other files to zip up with it.
 * [gcom.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.1/gcom.exe) (64-bit)
 * [gcom32.exe](https://github.com/skeeto/goblin-com/releases/download/1.0.1/gcom32.exe) (32-bit)
 
-### Telnet
-
-If you don't want to download anything, you can play over telnet using
-any ANSI+UTF-8 terminal emulator. (If it looks bad in PuTTY, [fix its
-configuration][putty].)
-
-    telnet gcom.nullprogram.com
-
-Saving is disabled in the telnet version, though.
-
-[putty]: http://thegreyblog.blogspot.com/2009/08/configuring-putty-to-use-utf-8.html
-
 ### Other Platforms
 
 For all other platforms it should be easy to build from source.
