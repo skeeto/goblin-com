@@ -78,7 +78,7 @@ typedef struct squad {
 
 typedef struct hero {
     bool active;
-    char name[16];
+    char name[20];
     int hp, hp_max;
     int ap, ap_max;
     int str, dex, mind;
